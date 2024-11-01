@@ -13,9 +13,22 @@ export default function Chat({onBack, myData, selectedUser}) {
 
     loadData();
     // set chatroom change listener
-}, []);
+    const database = getDatabase();
+    const chatroomRef = ref(database, `chatrooms/${selectedUser.chatroomId}`);
+    onValue(chatroomRef, snapshot => {
+      const data = snapshot.val();
+      setMessages(renderMessages(data.messages));
+    });
+
+    return () => {
+      //remove chatroom listener
+      off(chatroomRef);
+    };
+  }, [fetchMessages, renderMessages, selectedUser.chatroomId]);
+
 //renderMessages
 //fetchMessages
+//const fetchMessages
 //onSend
 //return
 }
