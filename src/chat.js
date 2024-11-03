@@ -42,8 +42,8 @@ const renderMessages = useCallback(
               },
               // Add custom styling based on the user
               containerStyle: {
-              left: { backgroundColor: isCurrentUser ? 'green' : 'lightgrey' },
-              right: { backgroundColor: isCurrentUser ? 'green' : 'lightgrey' },
+              left: { backgroundColor: isCurrentUser ? '#60AB9A' : '#9372C0' },
+              right: { backgroundColor: isCurrentUser ? '#60AB9A' : '#9372C0' },
               },
           };
           })
@@ -96,7 +96,7 @@ const onSend = useCallback(
 return (
   <>
     <Pressable onPress={onBack} style={styles.actionBar}>
-      <Image source={require('./assets/back.png')} />
+      <Image source={require('./assets/favicon.png')} />
       <Text>{selectedUser?.name}</Text>
     </Pressable>
     <GiftedChat
@@ -110,4 +110,12 @@ return (
 );
 }
 
-}
+const styles = StyleSheet.create({
+  actionBar: {
+    backgroundColor: "rgba(223,223,223,1)",
+    height: 41,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+});
