@@ -1,5 +1,5 @@
 import { React, useState } from 'react';
-import { View,Image,Text,Alert,TextInput,StyleSheet,useWindowDimensions } from 'react-native';
+import { View,Image,StyleSheet,useWindowDimensions } from 'react-native';
 import Logo from '../assets/Logo_1.png';
 import InputField from './components/InputField';
 import BeatButton from './components/BeatButton';
