@@ -1,32 +1,40 @@
 import { React, useState } from 'react';
-import { View,Image,StyleSheet,useWindowDimensions } from 'react-native';
+import { View,Image, StyleSheet, useWindowDimensions, Alert } from 'react-native';
+
 import Logo from '../assets/Logo_1.png';
 import InputField from './components/InputField';
 import BeatButton from './components/BeatButton';
 
-export default function LoginScreen({onPressLogin, onSignUp}) {
+import { auth } from '../config/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
+export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailEmptyString, setEmailEmptyString] = useState(false);
     const [passwdEmptyString,setPasswdEmptyString] = useState(false);
     const {height} = useWindowDimensions();
     
-    const onLoginPressed = async () => {
+    const onLoginHandler = async () => {
         try {
-          //For Taras to do logic for login
-        } catch (error) {
-          const message = 'Login error';
-          let description;
-    
-          switch (error.code) {
-            //describing errors
+          if (email !== "" && password !== "") {
+            await signInWithEmailAndPassword(auth, email, password);
+            console.log("Login successful")
           }
+        } catch (error) {
+          const title = "Login error";
+          // let description;
+    
+          // switch (error.code) {
+          //   case 
+          // };
+          Alert.alert(title, error.message);
         }
         
     };
 
-    const onSingUpPressed = () => {
-        onSingUp();
+    const onSingUpHandler = () => {
+      navigation.navigate("SignUp");
     }
     
     return(
@@ -51,12 +59,12 @@ export default function LoginScreen({onPressLogin, onSignUp}) {
 
             <BeatButton 
             text="Log In" 
-            onPress={onLoginPressed}
+            onPress={onLoginHandler}
             />
             
             <BeatButton 
             text="Don't have an acount? Create one" 
-            onPress={onSingUpPressed} 
+            onPress={onSingUpHandler} 
             type="tertiary"
             />
         </View>

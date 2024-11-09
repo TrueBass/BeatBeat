@@ -1,30 +1,37 @@
 import { React, useState } from 'react';
 import { View,Image,Text,Alert,TextInput,StyleSheet} from 'react-native';
+import { auth } from '../config/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import InputField from './components/InputField';
 import BeatButton from './components/BeatButton';
 
-export default function SignUpScreen({onPressLogin, onSignUp}) {
+export default function SignUpScreen({ navigation }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordRepeat,setPasswordRepeat] = useState('');
     const [emailEmptyString, setEmailEmptyString] = useState(false);
-    const [passwdEmptyString,setPasswdEmptyString] = useState(false);
+    const [passwdEmptyString, setPasswdEmptyString] = useState(false);
     
-    const test = async () =>{
-      console.log('B');
+    const onSignUpHandler = async () =>{
+      try{
+        await createUserWithEmailAndPassword(auth, email, password);
+      }catch(e){
+        console.log(e.code);// we'll use it for switch(e.code)->clear error explanation
+        Alert.alert("SingUp error", e.message);
+      }
     };
 
-    const onTermOfUSe = () =>{
+    const onTermOfUSeHandler = () =>{
       console.log("Term of Use");
     }
 
-    const onPrivacyPolicy = () =>{
+    const onPrivacyPolicyHandler = () =>{
       console.log("Privacy Police");
     }
 
-    const onLogin = () =>{
-      console.log("Login");
+    const onLoginHandler = () =>{
+      navigation.pop();
     }
 
     return(
@@ -32,8 +39,8 @@ export default function SignUpScreen({onPressLogin, onSignUp}) {
             <Text style={styles.title}>Create an account</Text>
 
             <InputField 
-            placeholder="Name" 
-            value={name} 
+            placeholder="Name"
+            value={name}
             setValue={setName}
             />
 
@@ -59,18 +66,18 @@ export default function SignUpScreen({onPressLogin, onSignUp}) {
 
             <BeatButton 
             text="Register" 
-            onPress={test}
+            onPress={onSignUpHandler}
             />
 
             <Text style={styles.text}>
               By registering, you confirm that you accept our
-              <Text style={styles.link} onPress={onTermOfUSe}> Terms of Use</Text> and 
-              <Text style={styles.link} onPress={onPrivacyPolicy}> Privacy Policy</Text>
+              <Text style={styles.link} onPress={onTermOfUSeHandler}> Terms of Use</Text> and 
+              <Text style={styles.link} onPress={onPrivacyPolicyHandler}> Privacy Policy</Text>
             </Text>
 
             <BeatButton
             text="Have an acount? Sign in"
-            onPress={onLogin}
+            onPress={onLoginHandler}
             type = "tertiary"
             />
             

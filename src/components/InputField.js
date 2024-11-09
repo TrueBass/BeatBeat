@@ -1,7 +1,7 @@
 import {React} from "react";
 import {View,Text,TextInput,StyleSheet} from 'react-native';
 
-export default function InputField({value, setValue,placeholder,secureTextEntry}){
+export default function InputField({value, setValue, placeholder, secureTextEntry=false}){
     return(
         <View style={styles.container}>
             <TextInput
