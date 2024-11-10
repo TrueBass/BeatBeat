@@ -9,7 +9,9 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import LoginScreen from './src/LoginScreen';
 import SignUpScreen from './src/SingUpScreen';
-
+//============
+import { useUser, onAddFriend} from './src/charFlow';
+//============
 const Stack = createStackNavigator();
 const AuthUserContext = createContext({});
 
@@ -31,7 +33,6 @@ function AuthStack(){
     </Stack.Navigator>
   );
 }
-
 const MainScreen = ()=>{
   return(
     <View>
@@ -68,7 +69,6 @@ function RootNavigator(){
     );
     return unsubscribe;
   }, [user]);
-
   if(loading){
     return (
       <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
@@ -88,7 +88,7 @@ function RootNavigator(){
 }
 
 export default function App() {
-  
+
   return (
     <AuthUserProvider>
         <StatusBar barStyle={"default"}/>

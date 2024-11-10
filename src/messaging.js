@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {GiftedChat} from 'react-native-gifted-chat';
 import {Image, Pressable, StyleSheet, Text} from 'react-native';
-import {getDatabase, get, ref, onValue, off, update} from 'firebase/database';
+import {get, ref, onValue, off, update} from 'firebase/database';
 export default function Chat({onBack, myData, selectedUser}) {
     const [messages, setMessages] = useState([]);
     //load old messages
@@ -13,8 +13,7 @@ export default function Chat({onBack, myData, selectedUser}) {
 
     loadData();
     // set chatroom change listener
-    const database = getDatabase();
-    const chatroomRef = ref(database, `chatrooms/${selectedUser.chatroomId}`);
+    const chatroomRef = ref(realtimeDB, `chatrooms/${selectedUser.chatroomId}`);
     onValue(chatroomRef, snapshot => {
       const data = snapshot.val();
       setMessages(renderMessages(data.messages));
@@ -58,10 +57,8 @@ const renderMessages = useCallback(
   );
 //fetchMessages
 const fetchMessages = useCallback(async () => {
-  const database = getDatabase();
-
   const snapshot = await get(
-    ref(database, `chatrooms/${selectedUser.chatroomId}`),
+    ref(realtimeDB, `chatrooms/${selectedUser.chatroomId}`),
   );
 
   return snapshot.val();
@@ -70,14 +67,11 @@ const fetchMessages = useCallback(async () => {
 const onSend = useCallback(
   async (msg = []) => {
     //send the msg[0] to the other user
-    const database = getDatabase();
-
     //fetch fresh messages from server
     const currentChatroom = await fetchMessages();
-
     const lastMessages = currentChatroom.messages || [];
 
-    update(ref(database, `chatrooms/${selectedUser.chatroomId}`), {
+    update(ref(realtimeDB, `chatrooms/${selectedUser.chatroomId}`), {
       messages: [
         ...lastMessages,
         {

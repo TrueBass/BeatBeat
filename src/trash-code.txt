@@ -1,0 +1,19 @@
+export default function App() {
+  //const [userID, setUserID] = useState('1');  // Set a test userID
+
+  // Call the useUser hook directly
+  //const { userData, friends } = useUser('1');
+  onAddFriend('1', '2');
+  // Log the data to see what we get
+  // useEffect(() => {
+  //   console.log('userData:', userData);
+  //   console.log('friends:', friends);
+  // }, [userData, friends]);
+
+  return (
+    <AuthUserProvider>
+        <StatusBar barStyle={"default"}/>
+        <RootNavigator />
+    </AuthUserProvider>
+  );
+}
