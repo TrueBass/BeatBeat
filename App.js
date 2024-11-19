@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
+import { View, ActivityIndicator, Text, StyleSheet, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -10,7 +10,16 @@ import { onAuthStateChanged } from "firebase/auth";
 import LoginScreen from './src/LoginScreen';
 import SignUpScreen from './src/SingUpScreen';
 //============
-import { useUser, onAddFriend} from './src/charFlow';
+import {getUserData, getUserFriends} from './src/user';
+const userId = "1"; // Example user ID
+const userData = await getUserData(userId);
+console.log(userData);
+
+const friends = await getUserFriends(userId);
+console.log("friends list:\t", friends);
+const profile = await getUserProfile(userId);
+console.log("full user profile\t", profile);
+
 //============
 const Stack = createStackNavigator();
 const AuthUserContext = createContext({});

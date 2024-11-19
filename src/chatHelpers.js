@@ -43,9 +43,9 @@ export const createChatroom = async (myUserID, otherUserID) => {
 };
 
 // Add a user to a friend's list (appending user to their `friends` field)
-export const addToFriendsList = async (userID, friendID, friendData) => {
+export const addToFriendsList = async (userID, friendID, chatroomId) => {
   const userRef = ref(realtimeDB, `users/${userID}`);
-  await update(userRef, { friends: {[friendID]: friendData} });
+  await update(userRef, { friends: {[friendID]: chatroomId} });
 };
 
 // Main function to add a friend
