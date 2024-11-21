@@ -9,6 +9,8 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import LoginScreen from './src/LoginScreen';
 import SignUpScreen from './src/SingUpScreen';
+import ProfileScreen from './src/ProfileScreen';
+import EditProfileScreen from "./src/EditProfileScreen";
 
 const Stack = createStackNavigator();
 const AuthUserContext = createContext({});
