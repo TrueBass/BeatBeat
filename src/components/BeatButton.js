@@ -35,5 +35,11 @@ const styles = StyleSheet.create({
 
     text_tertiary:{
         color:'#616a6a',
+    },
+
+    text_profile:{
+    fontFamily: "helvetica-regular",
+    color: "rgba(100,100,100,1)",
+    fontSize:30,
     }
 });
