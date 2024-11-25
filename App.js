@@ -15,6 +15,7 @@ import YourSex from "./src/screens/YourSex";
 import AreYouGay from "./src/screens/AreYouGay";
 import AutoBio from "./src/screens/AutoBio";
 import Profile from "./src/screens/Profile";
+import AddPhoto from "./src/screens/AddPhoto";
 
 const Stack = createStackNavigator();
 const AuthUserContext = createContext({});
@@ -92,10 +93,11 @@ function RootNavigator(){
 export default function App() {
 
   return (
-    <AuthUserProvider>
-        <StatusBar barStyle={"default"}/>
-        <RootNavigator />
-    </AuthUserProvider>
+    // <AuthUserProvider>
+    //     <StatusBar barStyle={"default"}/>
+    //     <RootNavigator />
+    // </AuthUserProvider>
+    <AddPhoto/>
   );
 }
 
