@@ -71,7 +71,6 @@ function RootNavigator(){
     );
     return unsubscribe;
   }, [user]);
-
   if(loading){
     return (
       <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
@@ -91,7 +90,7 @@ function RootNavigator(){
 }
 
 export default function App() {
-  
+
   return (
     <AuthUserProvider>
         <StatusBar barStyle={"default"}/>
