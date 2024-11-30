@@ -1,11 +1,11 @@
 import { React, useEffect, useState, useCallback } from 'react';
-import { View, Image,Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Image,Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth } from '../../config/firebase';
-import { signOut } from 'firebase/auth';
-import BeatButton from '../components/BeatButton';
-import FastImage from 'react-native-fast-image';
 import Button from '../components/Button';
+
+import { signOut } from 'firebase/auth';
+import { auth, realtimeDB } from '../../config/firebase';
+import {child, get, ref} from "firebase/database";
 
 export default function Profile({navigation}){
 
@@ -13,18 +13,21 @@ export default function Profile({navigation}){
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(()=>{
-    const preloadImages = [
-      require('./fillPhotos/sexy_men.jpg'),
-      require('./fillPhotos/sexy_men2.jpg'),
-      require('./fillPhotos/sexy_men3.jpg'),
-    ];
-    setImgs(preloadImages);
+    const user = ref(realtimeDB, "users/"+auth.currentUser.uid);
+    get(child(user, "photos/")).then(snapshot=>{
+      if(snapshot.exists()){
+        const snapVal = snapshot.val();
+        const uri = [];
+        for(let i = 0; i < snapVal.length; ++i){
+          uri.push(`data:image/jpeg;base64,${snapVal[i]}`);
+        }
+        setImgs(uri);
+      }else console.log("no data in the snap");
+    })
+    .catch(error=>{
+      Alert.alert("Error", error.message);
+    });
   }, []);
-
-  // const imagePressHandle = () =>{
-  //   // setCurrentImage((prevIndex) => (prevIndex+1) % images.length);
-  //   setCurrentImage((currentImage+1) % images.length);
-  // };
 
   const imagePressHandle = useCallback(() => {
     setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
@@ -42,7 +45,7 @@ export default function Profile({navigation}){
   return(
     <SafeAreaView style={styles.container}>
       <TouchableOpacity onPress={imagePressHandle} style={styles.gallery}>
-          <Image source={images[currentImage]} style={styles.photo}/>
+          <Image source={{uri: images[currentImage]}} style={styles.photo}/>
       </TouchableOpacity>
       <Text style={styles.username}>Tekoshi Uguku</Text>
       <Text style={styles.description}>
@@ -80,7 +83,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderStyle: "solid",
     borderColor: "#ffffffff",
-    // backgroundColor: ,
     marginTop: "5%",
     alignItems: "center",
     justifyContent: "center"

@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { React, useEffect, useState } from 'react';
 import { View,Image, StyleSheet, useWindowDimensions, Alert } from 'react-native';
 
 import Logo from '../../assets/Logo_1.png';
@@ -20,7 +20,7 @@ export default function LoginScreen({ navigation }) {
       try {
         if (email !== "" && password !== "") {
           await signInWithEmailAndPassword(auth, email, password);
-          console.log("Login successful")
+          console.log("Login successful");
         }
       } catch (error) {
         let title;

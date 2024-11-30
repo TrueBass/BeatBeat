@@ -1,11 +1,23 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, Image , TouchableOpacity} from "react-native";
+import { StyleSheet, View, Text, Image , TouchableOpacity, Alert} from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import  placeholder from "../../assets/inmyselfitrust.jpeg";
 
-function AddPhoto(props) {
+import {button, buttonText} from "../styles/style";
+
+function AddPhoto({navigation, route}) {
  
   const [images, setImages] = useState([null, null, null, null]); 
+
+  function onNext(){
+    for(let i = 0; i < images.length; ++i){
+      if(images[i] === null){
+        Alert.alert("Not enough images", "Fill all squares with your images")
+        return;
+      }
+    }
+    route.params.user["images"] = images;
+    navigation.navigate("AgeCats", {...route.params});
+  }
 
   const onPickPhoto = async (index) => {
     try {
@@ -13,20 +25,19 @@ function AddPhoto(props) {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
-        aspect: [1, 1],
+        aspect: [4, 3],
         quality: 1,
       });
 
       if (!result.canceled) {
-        const newImages = [...images]; 
-        newImages[index] = result.assets[0].uri; 
-        setImages(newImages); 
+        const newImages = [...images];
+        newImages[index] = result.assets[0].uri;
+        setImages(newImages);
       }
     } catch (error) {
       Alert.alert("Error uploading image: " + error.message);
     }
   };
-
 
   return (
     <View style={styles.container}>
@@ -39,16 +50,22 @@ function AddPhoto(props) {
             onPress={() => onPickPhoto(index)}>
             <Image
               source={image ? { uri: image } : null}
-              resizeMode="contain"
+              resizeMode="cover"
               style={styles.image}
             />
           </TouchableOpacity>
         ))}
-
       </View>
+      <TouchableOpacity style={[button, {marginTop: "10%", width: "30%", height: "5%"}]}
+        onPress={onNext}
+      >
+        <Text style={buttonText}>Next</Text>
+      </TouchableOpacity>
     </View>
   );
 }
+
+export default AddPhoto;
 
 const styles = StyleSheet.create({
   container: {
@@ -101,5 +118,3 @@ const styles = StyleSheet.create({
     gap: 20,
   },
 });
-
-export default AddPhoto;

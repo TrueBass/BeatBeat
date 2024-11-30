@@ -34,9 +34,9 @@ function AuthStack(){
     <Stack.Navigator initialRouteName="Login" screenOptions={{headerShown: false}}>
       <Stack.Screen name="Login" component={LoginScreen}/>
       <Stack.Screen name="AutoBio" component={AutoBio}/>
+      <Stack.Screen name="AddPhoto" component={AddPhoto}/>
       <Stack.Screen name="AgeCats" component={AgeCats}/>
       <Stack.Screen name="YourSex" component={YourSex}/>
-      <Stack.Screen name="Profile" component={Profile}/>
       <Stack.Screen name="SignUp" component={SignUpScreen}/>
       <Stack.Screen name="AreYouGay" component={AreYouGay}/>
       <Stack.Screen name="Relationship" component={Relationship}/>
@@ -47,10 +47,7 @@ function AuthStack(){
 function ChatStack(){
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerStyle: {backgroundColor:  "#212121"},
-        headerTintColor: '#ffffff'
-      }}
+      screenOptions={{headerShown: false}}
     >
       {/* <Stack.Screen name="Home" component={Home}/>
       <Stack.Screen name="Chat" component={Chat}/> */}
@@ -72,6 +69,7 @@ function RootNavigator(){
     );
     return unsubscribe;
   }, [user]);
+
   if(loading){
     return (
       <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
@@ -93,11 +91,11 @@ function RootNavigator(){
 export default function App() {
 
   return (
-    // <AuthUserProvider>
-    //     <StatusBar barStyle={"default"}/>
-    //     <RootNavigator />
-    // </AuthUserProvider>
-    <AddPhoto/>
+    <AuthUserProvider>
+        <StatusBar barStyle={"default"}/>
+        <RootNavigator />
+    </AuthUserProvider>
+    // <AddPhoto/>
   );
 }
 

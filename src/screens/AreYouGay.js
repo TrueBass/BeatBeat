@@ -1,10 +1,11 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Touchable, TouchableOpacity } from "react-native";
 
 function AreYouGay({navigation, route}) {
 
   const onPress = (userOrientation)=>{
-    navigation.navigate("AutoBio", {userOrientation});
+    route.params.user["orientation"] = userOrientation;
+    navigation.navigate("AutoBio", {...route.params});
   }
 
   return (

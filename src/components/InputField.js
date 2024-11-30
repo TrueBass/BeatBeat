@@ -1,7 +1,7 @@
 import {React} from "react";
 import {View,Text,TextInput,StyleSheet} from 'react-native';
 
-export default function InputField({value, setValue, placeholder, secureTextEntry=false}){
+export default function InputField({value, setValue, placeholder, keyboardType="default", textContentType="none", secureTextEntry=false, autoComplete="off", autoCorrect=true}){
     return(
         <View style={styles.container}>
             <TextInput
@@ -10,6 +10,11 @@ export default function InputField({value, setValue, placeholder, secureTextEntr
              placeholder={placeholder}
              style={styles.input}
              secureTextEntry={secureTextEntry}
+             autoComplete={autoComplete}
+             keyboardType={keyboardType}
+             textContentType={textContentType}
+             importantForAutofill="no"
+             autoCorrect={autoCorrect}
             />
         </View>
     )

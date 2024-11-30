@@ -1,7 +1,5 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import { View, Text ,Alert, StyleSheet} from 'react-native';
-import { auth } from '../../config/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import InputField from '../components/InputField';
 import BeatButton from '../components/BeatButton';
 import {Palette} from "../colors/palette";
@@ -15,22 +13,31 @@ export default function SignUpScreen({ navigation }) {
   const [emailEmptyString, setEmailEmptyString] = useState(false);
   const [passwdEmptyString, setPasswdEmptyString] = useState(false);
 
-  const onSignUpHandler = async () =>{
-    // move that to the end of a signUp screen stack
-  };
-
   const onNext = async()=>{
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
     if(name==""){
       Alert.alert("Enter a nickname", "No nickname has been provided");
       return;
     }
 
-    if(password=="" || passwordRepeat==""){
-      Alert.alert("Enter a password", "");
+    else if(!email.match(emailRegex)){
+      console.log("reg");
+      Alert.alert("Wrong email format",
+        "Provide an email with the right format. For example: \"example@exampledomain.com\""
+      );
       return;
     }
 
-    if(password != passwordRepeat){
+    else if(password=="" || password.length < 6){
+      Alert.alert(
+        "Too short password",
+        "Enter a password. Minimum length is 6 characters"
+      );
+      return;
+    }
+
+    else if(password != passwordRepeat){
       Alert.alert(
         "Provided different passwords",
         "Provide same password in the confirm password field"
@@ -39,8 +46,7 @@ export default function SignUpScreen({ navigation }) {
     }
 
     try{
-      navigation.navigate("AgeCats");
-      // await createUserWithEmailAndPassword(auth, email, password);
+      navigation.navigate("AddPhoto", {user: {name, email, password}});
     }catch(error){
       
       const errorCode = error.code;
@@ -73,8 +79,7 @@ export default function SignUpScreen({ navigation }) {
         break;
       }
       Alert.alert(errorTitle, errorMsg);
-    }   
-    // add params with user object and put it along the screen route
+    }
   }
 
   const onTermOfUSeHandler = () =>{
@@ -106,10 +111,11 @@ export default function SignUpScreen({ navigation }) {
       />
       
       <InputField
-      placeholder="Password" 
+      placeholder="Enter password"
       value={password} 
       setValue={setPassword} 
       secureTextEntry={true}
+      textContentType='oneTimeCode'
       />
 
       <InputField 
@@ -117,6 +123,8 @@ export default function SignUpScreen({ navigation }) {
       value={passwordRepeat} 
       setValue={setPasswordRepeat}
       secureTextEntry={true}
+      autoCorrect={false}
+      textContentType='oneTimeCode'
       />
 
       <Button title="Next"
@@ -161,6 +169,6 @@ const styles = StyleSheet.create({
   },
 
   link:{
-    color:'#e39152',
-  },
+    color:'#e39152'
+  }
 });

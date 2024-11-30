@@ -1,14 +1,11 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
 function YourSex({navigation, route}) {
 
-  const getProp = ()=>{
-    // func to get props from prev screens
-  }
-
   const onPress = (userSex)=>{
-    navigation.navigate("AreYouGay", {userSex});
+    route.params.user["sex"] = userSex;
+    navigation.navigate("AreYouGay", {...route.params});
   };
 
   return (

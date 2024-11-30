@@ -1,4 +1,4 @@
-import { React } from 'react';
+import { React, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,16 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 
-export default function AutoBio({navigation}) {
+import { addPhotoToRtdb } from '../user';
+import { auth } from '../../config/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
+export default function AutoBio({route}) {
+  
   const onCreate = async()=>{
-    // TODO: copy old singUp func
-    console.log("Acc created");
-    navigation.navigate("Profile");
+    let user = route.params.user;
+    await createUserWithEmailAndPassword(auth, user.email, user.password);
+    await addPhotoToRtdb(user);
   };
 
   return (

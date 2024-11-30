@@ -1,15 +1,11 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
 function Relationship({navigation, route}) {
 
-  const getProp = ()=>{
-    const {ageCategory} = route.params;
-    console.log(ageCategory);
-  }
-
   const onPress = (userOption)=>{
-    navigation.navigate("YourSex", {userOption});
+    route.params.user["relationship"] = userOption;
+    navigation.navigate("YourSex", {...route.params});
   }
 
   return (

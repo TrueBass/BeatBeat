@@ -7,7 +7,7 @@ export default function BeatButton({onPress, title, width, height, marginHorizon
 		<TouchableOpacity
       style={[
           button, {width, height,
-          marginVertical, marginHorizontal, margin, marginBottom, marginTop, }
+          marginVertical, marginHorizontal, margin, marginBottom, marginTop}
         ]}
       onPress={onPress}>
 			<Text style={buttonText}>{title}</Text>

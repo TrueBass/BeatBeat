@@ -1,20 +1,17 @@
-import React, { Component, useState } from "react";
+import React, {useState, useEffect } from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import Button from "../components/Button";
 
-function AgeCats({navigation}) {
+function AgeCats({navigation, route}) {
 
   const onPress = (from, to)=>{
-    navigation.navigate("Relationship", {ageCategory: {from, to}});
+    route.params.user["ageCategory"] = {from, to};
+    navigation.navigate("Relationship", {...route.params});
   }
 
   return (
     <View style={styles.container}>
         <Text style={styles.question}>Choose your age category:</Text>
-        <Button text="18 - 28"
-          onPress={()=>onPress(18, 28)}
-          width="65%" height="8%" marginBottom="5%"
-        />
         <TouchableOpacity onPress={()=>onPress(28, 38)} style={styles.button}>
           <Text style={styles.buttonText}>28 - 38</Text>
         </TouchableOpacity>

@@ -1,7 +1,7 @@
-import { ref, get, update } from 'firebase/database';
-//import * as FileSystem from 'expo-file-system';
+import { ref, get, update, set } from 'firebase/database';
+import * as FileSystem from 'expo-file-system';
 //import { Asset } from 'expo-asset';
-import { realtimeDB } from '../config/firebase'
+import { realtimeDB, auth } from '../config/firebase'
 
 export const getUserData = async (userId) => {
   try {
@@ -117,6 +117,21 @@ export const deleteUserAccount = async (userId) => {
     throw error;
   }
 };
+
+export async function addUserToRtdb(user){
+  /**
+   * Temporary made this function in this file
+   * we need to take it in the right file and use on the end of the singUp screen chain
+   * because there is "users/"+auth.uuid in the ref() func.
+   */
+  const userRef = ref(realtimeDB,'users/'+auth.currentUser.uid);
+
+  set(userRef, {...user}).then(() => {
+    console.log("New data added successfully");
+  }).catch((error) => {
+    console.error("Error adding new data: ", error);
+  });
+}
  /**
  * Upload image to Firebase Realtime Database under the user's photos.
  * Ensures the user has no more than 4 photos.
@@ -149,6 +164,27 @@ export const uploadImageToRealtimeDatabase = async (base64Image, userId) => {
     console.log('Failed to upload image');
   }
 };
+
+export const decodeBase64ToFile = async (base64String, fileName) => {
+  try {
+    // Step 1: Define the file path where you want to save the image
+    const fileUri = FileSystem.documentDirectory + fileName;
+
+    // Step 2: Write the Base64 string to a file as binary (do not encode it as Base64)
+    await FileSystem.writeAsStringAsync(fileUri, base64String, {
+      encoding: FileSystem.EncodingType.Base64, // Correct: treats the string as Base64 data
+    });
+
+    console.log('File saved to:', fileUri);
+
+    // Step 3: Return the file URI (you can use this URI to display the image or for other operations)
+    return fileUri;
+  } catch (error) {
+    console.error('Error saving the Base64 image:', error);
+    throw error;  // You can handle this error as needed in your app
+  }
+};
+
 export const convertImageToBase64 = async (imagePath) => {
   try {
     const base64String = await FileSystem.readAsStringAsync(imagePath, {
@@ -162,22 +198,22 @@ export const convertImageToBase64 = async (imagePath) => {
   }
 };
 
-export const localConvertBase64 = async (imagePath) => {
-  try {
-    const asset = Asset.fromModule(imagePath);
-    await asset.downloadAsync();
-    const localUri = asset.uri; // This will point to the image in the local cache
-    // Now, read the image from the local URI
-    const base64String = await FileSystem.readAsStringAsync(localUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
+// export const localConvertBase64 = async (imagePath) => {
+//   try {
+//     const asset = Asset.fromModule(imagePath);
+//     await asset.downloadAsync();
+//     const localUri = asset.uri; // This will point to the image in the local cache
+//     // Now, read the image from the local URI
+//     const base64String = await FileSystem.readAsStringAsync(localUri, {
+//       encoding: FileSystem.EncodingType.Base64,
+//     });
 
-    return base64String;
-  } catch (error) {
-    console.error('Error converting image to Base64:', error);
-    throw error;
-  }
-};
+//     return base64String;
+//   } catch (error) {
+//     console.error('Error converting image to Base64:', error);
+//     throw error;
+//   }
+// };
 // Function to copy image to Cache Directory
 export const saveImageToCache = async (sourceUri) => {
   try {
