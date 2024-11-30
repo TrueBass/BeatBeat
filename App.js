@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-
 import {auth} from "./config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -16,7 +15,6 @@ import AreYouGay from "./src/screens/AreYouGay";
 import AutoBio from "./src/screens/AutoBio";
 import Profile from "./src/screens/Profile";
 import AddPhoto from "./src/screens/AddPhoto";
-
 const Stack = createStackNavigator();
 const AuthUserContext = createContext({});
 
@@ -95,7 +93,6 @@ export default function App() {
         <StatusBar barStyle={"default"}/>
         <RootNavigator />
     </AuthUserProvider>
-    // <AddPhoto/>
   );
 }
 

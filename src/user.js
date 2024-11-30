@@ -2,11 +2,6 @@ import { ref, get, update, set } from 'firebase/database';
 import * as FileSystem from 'expo-file-system';
 //import { Asset } from 'expo-asset';
 import { realtimeDB, auth } from '../config/firebase'
-import { ref, get, update , set} from 'firebase/database';
-
-import { realtimeDB } from '../config/firebase'
-import * as FileSystem from 'expo-file-system';
-
 
 export const getUserData = async (userId) => {
   try {
@@ -93,19 +88,17 @@ export const getUserProfile = async (userId) => {
   }
 };
 
-export const updateProfileData = async (userId, profileData, image64) => {
+export const updateProfileData = async (userId, profileData) => {
   try {
     const userRef = ref(realtimeDB, 'users/' + userId + '/images');
     console.log("userId:", userId);  // Ensure userId is not undefined
-
-    // Update the user's profile information
     await set(userRef, {
-      // ageCategory: profileData.ageCategory,
-      // motivation: profileData.motivation,
-      // orientation: profileData.orientation,
-      // sex: profileData.sex,
-      // description: profileData.description,
-      image64
+      username: profileData.username,
+      ageCategory: profileData.ageCategory,
+      relationship: profileData.motivation,
+      orientation: profileData.orientation,
+      sex: profileData.sex,
+      description: profileData.description,
     });
     console.log('User profile updated successfully!');
   } catch (error) {
@@ -176,5 +169,3 @@ export async function encodeToBase64(fileUri){
   });
   return base64String;
 }
-/* uploadImageToRealtimeDatabase(base64String, 'cZ1oLGQTcEWryUfw5ClvWZQdKT22')
-*/

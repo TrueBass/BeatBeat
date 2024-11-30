@@ -14,12 +14,12 @@ export default function Profile({navigation}){
 
   useEffect(()=>{
     const user = ref(realtimeDB, "users/"+auth.currentUser.uid);
-    get(child(user, "photos/")).then(snapshot=>{
+    get(user).then(snapshot=>{
       if(snapshot.exists()){
         const snapVal = snapshot.val();
         const uri = [];
-        for(let i = 0; i < snapVal.length; ++i){
-          uri.push(`data:image/jpeg;base64,${snapVal[i]}`);
+        for(let i = 0; i < snapVal.images.length; ++i){
+          uri.push(`${snapVal.images[i]}`);
         }
         setImgs(uri);
       }else console.log("no data in the snap");
