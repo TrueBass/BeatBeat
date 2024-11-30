@@ -2,6 +2,11 @@ import { ref, get, update, set } from 'firebase/database';
 import * as FileSystem from 'expo-file-system';
 //import { Asset } from 'expo-asset';
 import { realtimeDB, auth } from '../config/firebase'
+import { ref, get, update , set} from 'firebase/database';
+
+import { realtimeDB } from '../config/firebase'
+import * as FileSystem from 'expo-file-system';
+
 
 export const getUserData = async (userId) => {
   try {
@@ -88,17 +93,19 @@ export const getUserProfile = async (userId) => {
   }
 };
 
-export const updateUserProfile = async (userId, profileData) => {
+export const updateProfileData = async (userId, profileData, image64) => {
   try {
-    const userRef = ref(realtimeDB, 'users/' + userId);
+    const userRef = ref(realtimeDB, 'users/' + userId + '/images');
+    console.log("userId:", userId);  // Ensure userId is not undefined
 
     // Update the user's profile information
-    await update(userRef, {
-      ageCategory: profileData.ageCategory,
-      motivation: profileData.motivation,
-      orientation: profileData.orientation,
-      sex: profileData.sex,
-      description: profileData.description,
+    await set(userRef, {
+      // ageCategory: profileData.ageCategory,
+      // motivation: profileData.motivation,
+      // orientation: profileData.orientation,
+      // sex: profileData.sex,
+      // description: profileData.description,
+      image64
     });
     console.log('User profile updated successfully!');
   } catch (error) {
@@ -138,7 +145,6 @@ export async function addUserToRtdb(user){
  * @param {string} base64Image - The Base64 encoded image string.
  * @param {string} userId - The unique ID of the user.
  */
-/*
 export const uploadImageToRealtimeDatabase = async (base64Image, userId) => {
   try {
     const userRef = ref(realtimeDB, `users/${userId}`);
@@ -156,7 +162,7 @@ export const uploadImageToRealtimeDatabase = async (base64Image, userId) => {
     currentPhotos.push(base64Image);
 
     // Update the user's photos array in the Realtime Database
-    await update(userRef, { photos: currentPhotos });
+    await update(userRef, { images: currentPhotos });
 
     console.log('Image uploaded successfully');
   } catch (error) {
@@ -164,80 +170,11 @@ export const uploadImageToRealtimeDatabase = async (base64Image, userId) => {
     console.log('Failed to upload image');
   }
 };
-
-export const decodeBase64ToFile = async (base64String, fileName) => {
-  try {
-    // Step 1: Define the file path where you want to save the image
-    const fileUri = FileSystem.documentDirectory + fileName;
-
-    // Step 2: Write the Base64 string to a file as binary (do not encode it as Base64)
-    await FileSystem.writeAsStringAsync(fileUri, base64String, {
-      encoding: FileSystem.EncodingType.Base64, // Correct: treats the string as Base64 data
-    });
-
-    console.log('File saved to:', fileUri);
-
-    // Step 3: Return the file URI (you can use this URI to display the image or for other operations)
-    return fileUri;
-  } catch (error) {
-    console.error('Error saving the Base64 image:', error);
-    throw error;  // You can handle this error as needed in your app
-  }
-};
-
-export const convertImageToBase64 = async (imagePath) => {
-  try {
-    const base64String = await FileSystem.readAsStringAsync(imagePath, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-    
-    return base64String;
-  } catch (error) {
-    console.error('Error converting image to Base64:', error);
-    throw error;
-  }
-};
-
-// export const localConvertBase64 = async (imagePath) => {
-//   try {
-//     const asset = Asset.fromModule(imagePath);
-//     await asset.downloadAsync();
-//     const localUri = asset.uri; // This will point to the image in the local cache
-//     // Now, read the image from the local URI
-//     const base64String = await FileSystem.readAsStringAsync(localUri, {
-//       encoding: FileSystem.EncodingType.Base64,
-//     });
-
-//     return base64String;
-//   } catch (error) {
-//     console.error('Error converting image to Base64:', error);
-//     throw error;
-//   }
-// };
-// Function to copy image to Cache Directory
-export const saveImageToCache = async (sourceUri) => {
-  try {
-    const cacheDirectory = FileSystem.cacheDirectory;
-    const cacheImagePath = cacheDirectory + 'picked-image.jpg';
-
-    const fileInfo = await FileSystem.getInfoAsync(cacheImagePath);
-
-    if (!fileInfo.exists) {
-      // If the image is not already in cache, copy it there
-      await FileSystem.copyAsync({
-        from: sourceUri, // The picked image URI
-        to: cacheImagePath, // The path in the cache directory
-      });
-      console.log('Image copied to cache at:', cacheImagePath);
-    } else {
-      console.log('Image already exists in cache.');
-    }
-
-    return cacheImagePath; // Return the cache path of the image
-  } catch (error) {
-    console.error('Error saving image to cache:', error);
-    setErrorMessage('Error saving image to cache');
-    return null;
-  }
-};
+export async function encodeToBase64(fileUri){
+  const base64String = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+  return base64String;
+}
+/* uploadImageToRealtimeDatabase(base64String, 'cZ1oLGQTcEWryUfw5ClvWZQdKT22')
 */

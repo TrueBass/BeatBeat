@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, Image , TouchableOpacity, Alert} from "react-native";
 import * as ImagePicker from "expo-image-picker";
-
-import {button, buttonText} from "../styles/style";
-
-function AddPhoto({navigation, route}) {
+import { uploadImageToRealtimeDatabase, encodeToBase64 } from '../user'
+function AddPhoto(props) {
  
   const [images, setImages] = useState([null, null, null, null]); 
 
@@ -30,9 +28,14 @@ function AddPhoto({navigation, route}) {
       });
 
       if (!result.canceled) {
-        const newImages = [...images];
-        newImages[index] = result.assets[0].uri;
-        setImages(newImages);
+        const newImages = [...images]; 
+        newImages[index] = base64String; 
+        setImages(newImages); 
+        /*
+        const fileUri = result.assets[0].uri;
+        const base64Image = encodeToBase64(fileUri);
+        in order to upload it to firesbase use uploadImageToRealtimeDatabase(base64Image, userId)
+        */
       }
     } catch (error) {
       Alert.alert("Error uploading image: " + error.message);
