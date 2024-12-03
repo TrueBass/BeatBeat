@@ -1,6 +1,5 @@
 import { ref, get, update, set } from 'firebase/database';
 import * as FileSystem from 'expo-file-system';
-//import { Asset } from 'expo-asset';
 import { realtimeDB, auth } from '../config/firebase'
 
 export const getUserData = async (userId) => {
@@ -118,12 +117,7 @@ export const deleteUserAccount = async (userId) => {
   }
 };
 
-export async function addUserToRtdb(user){
-  /**
-   * Temporary made this function in this file
-   * we need to take it in the right file and use on the end of the singUp screen chain
-   * because there is "users/"+auth.uuid in the ref() func.
-   */
+export async function addUserToRtdb(user, images){
   const userRef = ref(realtimeDB,'users/'+auth.currentUser.uid);
 
   set(userRef, {...user}).then(() => {
@@ -131,6 +125,14 @@ export async function addUserToRtdb(user){
   }).catch((error) => {
     console.error("Error adding new data: ", error);
   });
+
+  for(let i = 0; i < images.length; ++i){
+    set(ref(realtimeDB, "users/"+auth.currentUser.uid+`/images/${i}`), images[i]).then(() => {
+      console.log(`image ${i} added successfully`);
+    }).catch((error) => {
+      console.error(`Error adding image ${i}: `, error);
+    });
+  }
 }
  /**
  * Upload image to Firebase Realtime Database under the user's photos.

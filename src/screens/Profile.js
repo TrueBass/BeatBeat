@@ -5,7 +5,7 @@ import Button from '../components/Button';
 
 import { signOut } from 'firebase/auth';
 import { auth, realtimeDB } from '../../config/firebase';
-import {child, get, ref} from "firebase/database";
+import { get, ref } from "firebase/database";
 
 export default function Profile({navigation}){
 
@@ -13,15 +13,12 @@ export default function Profile({navigation}){
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(()=>{
+    console.log("in use Effect")
     const user = ref(realtimeDB, "users/"+auth.currentUser.uid);
     get(user).then(snapshot=>{
       if(snapshot.exists()){
         const snapVal = snapshot.val();
-        const uri = [];
-        for(let i = 0; i < snapVal.images.length; ++i){
-          uri.push(`${snapVal.images[i]}`);
-        }
-        setImgs(uri);
+        setImgs(snapVal.images);
       }else console.log("no data in the snap");
     })
     .catch(error=>{

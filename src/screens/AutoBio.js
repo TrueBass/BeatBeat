@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 
-import { addPhotoToRtdb } from '../user';
+import { addUserToRtdb } from '../user';
 import { auth } from '../../config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
@@ -17,8 +17,10 @@ export default function AutoBio({route}) {
   
   const onCreate = async()=>{
     let user = route.params.user;
-    await createUserWithEmailAndPassword(auth, user.email, user.password);
-    await addPhotoToRtdb(user);
+    await createUserWithEmailAndPassword(auth, user.email, user.password)
+    .then(()=>{console.log("user added suc!")})
+    .catch((e)=>console.log(e.message));
+    await addUserToRtdb(user, route.params.images);
   };
 
   return (

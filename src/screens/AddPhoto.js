@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, Image , TouchableOpacity, Alert} from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { uploadImageToRealtimeDatabase, encodeToBase64 } from '../user'
-function AddPhoto(props) {
+
+import { button, buttonText } from "../styles/style";
+
+function AddPhoto({navigation, route}) {
  
-  const [images, setImages] = useState([null, null, null, null]); 
+  const [images, setImages] = useState([null, null, null, null]);
+  // const [base64Imgs, setBase64Imgs] = useState([null, null, null, null]);
 
   function onNext(){
     for(let i = 0; i < images.length; ++i){
@@ -13,8 +16,7 @@ function AddPhoto(props) {
         return;
       }
     }
-    route.params.user["images"] = images;
-    navigation.navigate("AgeCats", {...route.params});
+    navigation.navigate("AgeCats", {...route.params, images});
   }
 
   const onPickPhoto = async (index) => {
@@ -25,17 +27,13 @@ function AddPhoto(props) {
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
+        base64: true
       });
 
       if (!result.canceled) {
-        const newImages = [...images]; 
-        newImages[index] = base64String; 
-        setImages(newImages); 
-        /*
-        const fileUri = result.assets[0].uri;
-        const base64Image = encodeToBase64(fileUri);
-        in order to upload it to firesbase use uploadImageToRealtimeDatabase(base64Image, userId)
-        */
+        const newImages = [...images];
+        newImages[index] = `data:${result.assets[0].mimeType};base64,${result.assets[0].base64}`;
+        setImages(newImages);
       }
     } catch (error) {
       Alert.alert("Error uploading image: " + error.message);
