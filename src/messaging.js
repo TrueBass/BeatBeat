@@ -7,13 +7,9 @@ export const fetchMessages = async (chatroomId) => {
     const snapshot = await get(ref(realtimeDB, `chatrooms/${chatroomId}/messages`));
 
     if (snapshot.exists()) {
-      const messages = snapshot.val();
-      
-      // Convert messages object to an array and sort by createdAt
-      const sortedMessages = Object.values(messages).sort((a, b) => 
-        new Date(a.createdAt) - new Date(b.createdAt)
-      );
-      return sortedMessages;
+     // const messages = snapshot.val();
+     console.log("fetchMessages fun", snapshot.val());
+      return snapshot.val();
     } else {
       console.log("No messages found for this chatroom.");
       return []; 
@@ -26,7 +22,7 @@ export const fetchMessages = async (chatroomId) => {
 
 // Listen for chatroom changes (new messages)
 export const listenToChatroomChanges = (chatroomId, callback) => {
-  const chatroomRef = ref(realtimeDB, `chatrooms/${chatroomId}`);
+  const chatroomRef = ref(realtimeDB, `chatrooms/${chatroomId}/messages`);
   onValue(chatroomRef, snapshot => {
     const data = snapshot.val();
     callback(data); // Pass the messages to the callback
@@ -35,6 +31,19 @@ export const listenToChatroomChanges = (chatroomId, callback) => {
   return () => {
     off(chatroomRef); // Cleanup the listener when component unmounts
   };
+};
+export const sortMessages = (messages) => {
+  const sortedMessages = Object.entries(messages)
+  .map(([key, message]) => ({
+    id: key, // Save the message ID
+    ...message
+  }))
+  .sort((a, b) => {
+    const dateA = new Date(a.createdAt);
+    const dateB = new Date(b.createdAt);
+    return dateA - dateB; // Sorting by the createdAt field
+  });
+  return sortedMessages;
 };
 
 // Send a message to the chatroom

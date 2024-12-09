@@ -5,7 +5,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import {auth} from "./config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SingUpScreen';
 import AgeCats from "./src/screens/AgeCats";
