@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import { StyleSheet, View, Text, Image , TouchableOpacity, Alert} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
 import { button, buttonText } from "../styles/style";
+import {user, setUserImgs} from "./userObjForSignUp";
 
 function AddPhoto({navigation, route}) {
  
   const [images, setImages] = useState([null, null, null, null]);
-  // const [base64Imgs, setBase64Imgs] = useState([null, null, null, null]);
 
   function onNext(){
     for(let i = 0; i < images.length; ++i){
@@ -16,7 +16,8 @@ function AddPhoto({navigation, route}) {
         return;
       }
     }
-    navigation.navigate("AgeCats", {...route.params, images});
+    setUserImgs(images);
+    navigation.navigate("AgeCats");
   }
 
   const onPickPhoto = async (index) => {

@@ -19,7 +19,7 @@ export const button = {
 };
 
 export const buttonText = {
-  fontSize: 17,
+  fontSize: 16,
   fontFamily: "helvetica-regular",
   color: Palette.primary.button.textColor,
 };

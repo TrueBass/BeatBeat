@@ -70,12 +70,12 @@ export const getUserProfile = async (userId) => {
     if (snapshot.exists()) {
       // Return the user's profile data as an object
       return {
-        username: snapshot.val().username,
+        username: snapshot.val().name,
         ageCategory: snapshot.val().ageCategory,
-        motivation: snapshot.val().motivation,
+        autobio: snapshot.val().autobio,
         orientation: snapshot.val().orientation,
         sex: snapshot.val().sex,
-        description: snapshot.val().description,
+        relationship: snapshot.val().relationship,
       };
     } else {
       console.log("No profile data available");
@@ -89,15 +89,15 @@ export const getUserProfile = async (userId) => {
 
 export const updateProfileData = async (userId, profileData) => {
   try {
-    const userRef = ref(realtimeDB, 'users/' + userId + '/images');
+    const userRef = ref(realtimeDB, 'users/' + userId);
     console.log("userId:", userId);  // Ensure userId is not undefined
-    await set(userRef, {
-      username: profileData.username,
-      ageCategory: profileData.ageCategory,
-      relationship: profileData.motivation,
-      orientation: profileData.orientation,
-      sex: profileData.sex,
-      description: profileData.description,
+    await update(userRef, {...profileData
+      // name: profileData.name,
+      // ageCategory: profileData.ageCategory,
+      // autobio: profileData.autobio,
+      // orientation: profileData.orientation,
+      // sex: profileData.sex,
+      // relationship: profileData.relationship,
     });
     console.log('User profile updated successfully!');
   } catch (error) {
@@ -120,19 +120,33 @@ export const deleteUserAccount = async (userId) => {
 export async function addUserToRtdb(user, images){
   const userRef = ref(realtimeDB,'users/'+auth.currentUser.uid);
 
-  set(userRef, {...user}).then(() => {
+  try{
+  await set(userRef, {...user}).then(() => {
     console.log("New data added successfully");
   }).catch((error) => {
     console.error("Error adding new data: ", error);
   });
 
-  for(let i = 0; i < images.length; ++i){
-    set(ref(realtimeDB, "users/"+auth.currentUser.uid+`/images/${i}`), images[i]).then(() => {
+  await Promise.all(images.map((img, i)=>{
+    set(ref(realtimeDB, "users/"+auth.currentUser.uid+`/images/${i}`), img).then(() => {
       console.log(`image ${i} added successfully`);
     }).catch((error) => {
       console.error(`Error adding image ${i}: `, error);
     });
+  }));
+
+  return 200;
   }
+  catch(e){
+    console.log("in userToRtdb", e.message);
+  }
+  // for(let i = 0; i < images.length; ++i){
+  //   await set(ref(realtimeDB, "users/"+auth.currentUser.uid+`/images/${i}`), images[i]).then(() => {
+  //     console.log(`image ${i} added successfully`);
+  //   }).catch((error) => {
+  //     console.error(`Error adding image ${i}: `, error);
+  //   });
+  // }
 }
  /**
  * Upload image to Firebase Realtime Database under the user's photos.

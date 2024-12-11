@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Touchable, TouchableOpacity } from "react-native";
+import { user, setUserProp } from "./userObjForSignUp";
 
 function AreYouGay({navigation, route}) {
 
-  const onPress = (userOrientation)=>{
-    route.params.user["orientation"] = userOrientation;
-    navigation.navigate("AutoBio", {...route.params});
+  const onPress = (orientation)=>{
+    setUserProp("orientation", orientation);
+    navigation.navigate("AutoBio");
   }
 
   return (

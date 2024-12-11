@@ -1,4 +1,4 @@
-import { React, useEffect } from 'react';
+import { React, useEffect, useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -6,22 +6,49 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  ActivityIndicator,
+  SafeAreaView
 } from 'react-native';
-
+import { AuthUserContext } from '../../App';
 import { addUserToRtdb } from '../user';
 import { auth } from '../../config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { Palette } from '../colors/palette';
+import {buttonText} from "../styles/style";
+import { setUserProp, user, userImages } from './userObjForSignUp';
 
 export default function AutoBio({route}) {
   
+  const [autobio, setAutobio] = useState("");
+  const {setIsCreated} = useContext(AuthUserContext);
+  const [loading, setLoading] = useState(false);
+  
   const onCreate = async()=>{
-    let user = route.params.user;
+    setUserProp("autobio", autobio);
     await createUserWithEmailAndPassword(auth, user.email, user.password)
     .then(()=>{console.log("user added suc!")})
     .catch((e)=>console.log(e.message));
-    await addUserToRtdb(user, route.params.images);
+    try{
+      if(await addUserToRtdb(user, userImages)===200){
+        console.log("done");
+        setLoading(false); setIsCreated(true);
+      }
+    }catch(e){
+      console.error(e.message);
+    }
   };
+
+  if(loading){
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#212121"/>
+        <Text style={[buttonText, {textAlign: "center", marginTop: 10}]}>
+          {"Your account is creating\nIt will take a while"}
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     //TouchableWithoutFeedback - for hiding keyboard on whitespace press
@@ -30,6 +57,8 @@ export default function AutoBio({route}) {
         <Text style={styles.introduceYourself}>Tell a bit about yourself</Text>
         <Text style={styles.text1}>Let's say 300 chars for starters</Text>
           <TextInput
+            value={autobio}
+            onChangeText={setAutobio}
             placeholder="Whether it’s your hobbies, career, values,or anything unique
             about your journey,we want to know what drives you and
             makes you stand out!"
@@ -40,7 +69,7 @@ export default function AutoBio({route}) {
             clearButtonMode="while-editing"
             style={styles.textInput}
           />
-        <TouchableOpacity style={styles.button} onPress={()=>onCreate()}>
+        <TouchableOpacity style={styles.button} onPress={()=>{setLoading(true);onCreate();}}>
           <Text style={styles.buttonText}>✨Create account✨</Text>
         </TouchableOpacity>
       </View>
@@ -98,5 +127,11 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: "helvetica-regular",
     color: "#646464ff",
+  },
+  loadingContainer:{
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#e7e7e7"
   }
 });
