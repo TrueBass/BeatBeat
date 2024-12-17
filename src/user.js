@@ -2,29 +2,21 @@ import { ref, get, update, set } from 'firebase/database';
 import * as FileSystem from 'expo-file-system';
 import { realtimeDB, auth } from '../config/firebase'
 
-export const getUserData = async (userId) => {
+export const getUserCard = async (userId) => {
   try {
     const userRef = ref(realtimeDB, 'users/' + userId);
     const snapshot = await get(userRef);
     if (snapshot.exists()) {
       // Extract the user data from the snapshot
       const userData = snapshot.val();
-      const friendsWithChatroomIds = userData.friends.map((friendId) => {
-        const chatroomId = userData.friends[friendId]?.chatroomId || null;
-        return {
-          friendId,
-          chatroomId, 
-        };
-      });
       return {
         username: userData.username,
-        friends: userData.friends,
         ageCategory: userData.ageCategory,
-        motivation: userData.motivation,
+        relationship: userData.relationship,
         orientation: userData.orientation,
         sex: userData.sex,
-        description: userData.description,
-        friendsWithChatroomIds,
+        autobio: userData.autobio,
+        images: userData.images,
       };
     } else {
       console.log("No data available");
