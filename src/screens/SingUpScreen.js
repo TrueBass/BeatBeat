@@ -4,6 +4,7 @@ import InputField from '../components/InputField';
 import BeatButton from '../components/BeatButton';
 import {Palette} from "../colors/palette";
 import Button from "../components/Button";
+import { setUserProp } from './userObjForSignUp';
 
 export default function SignUpScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -46,7 +47,10 @@ export default function SignUpScreen({ navigation }) {
     }
 
     try{
-      navigation.navigate("AddPhoto", {user: {name, email, password}});
+      setUserProp("name", name);
+      setUserProp("email",email);
+      setUserProp("password", password);
+      navigation.navigate("AddPhoto");
     }catch(error){
       
       const errorCode = error.code;

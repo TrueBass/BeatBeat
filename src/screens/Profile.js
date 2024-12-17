@@ -7,58 +7,69 @@ import { signOut } from 'firebase/auth';
 import { auth, realtimeDB } from '../../config/firebase';
 import { get, ref } from "firebase/database";
 
-export default function Profile({navigation}){
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Palette } from '../colors/palette';
+import { buttonText } from '../styles/style';
 
+export default function Profile({navigation, route}){
+  const [user, setUser] = useState({});
   const [images, setImgs] = useState([]);
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(()=>{
-    console.log("in use Effect")
-    const user = ref(realtimeDB, "users/"+auth.currentUser.uid);
-    get(user).then(snapshot=>{
+    const userRef = ref(realtimeDB, "users/"+auth.currentUser.uid);
+    (async()=>await get(userRef).then(snapshot=>{
       if(snapshot.exists()){
         const snapVal = snapshot.val();
+        let snapWithoutImgs = {};
+        for(let key of Object.keys(snapVal)){
+          if(key == "images") continue;
+          snapWithoutImgs[key] = snapVal[key];
+        }
         setImgs(snapVal.images);
+        setUser(snapWithoutImgs);
       }else console.log("no data in the snap");
     })
     .catch(error=>{
       Alert.alert("Error", error.message);
-    });
-  }, []);
+    }))();
+  }, [route.params.isUserEdited]);
 
   const imagePressHandle = useCallback(() => {
-    setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
-  }, [images.length]);
+    if(images != undefined)
+      setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
+  }, [images!=undefined?images.length: ""]);
 
   const onLogOut = () => {
+    // move logout to the bottom of the sidebar
     signOut(auth).catch(err => console.log(err));
   };
 
   const onEdit = ()=>{
-    // TODO:
-    // make profile edit screen
+    
+    navigation.replace("Edit", {...route.params, user});
   }
 
   return(
     <SafeAreaView style={styles.container}>
+      <View style={{alignSelf: "flex-end", marginBottom: 10, marginHorizontal: "2%"}}>
+        <MaterialCommunityIcons name="square-edit-outline"
+          size={32} color={Palette.primary.button.textColor}
+          onPress={onEdit}
+        />
+      </View>
       <TouchableOpacity onPress={imagePressHandle} style={styles.gallery}>
           <Image source={{uri: images[currentImage]}} style={styles.photo}/>
       </TouchableOpacity>
-      <Text style={styles.username}>Tekoshi Uguku</Text>
-      <Text style={styles.description}>
-          Whether it’s your hobbies, career, values, or anything{"\n"}unique
-          about your journey, we want to know what drives{"\n"}you and makes you
-          stand out! Whether it’s your hobbies,{"\n"}career, values, or anything
-          unique about your journey,{"\n"}we want to know what drives you and
-          makes you stand out!
-      </Text>
-      <TouchableOpacity onPress={onEdit} style={styles.logout}>
-        <Text style={styles.buttonText}>Edit</Text>
-      </TouchableOpacity>
-      <Button title="Logout"
-        onPress={onLogOut}
-        width="40%" height="5%" marginTop="10%"
-      />
+      <Text style={[buttonText, {fontSize: 35}]}>{user.name||"unknown"}</Text>
+      <Text style={[buttonText, {fontSize: 35}]}>{user.sex||"unknown"}</Text>
+      <Text style={[buttonText, {color: Palette.primary.textColor}]}>{user.autobio||""}</Text>
+      <View style={{flex: 1, flexDirection: "row", alignItems: "flex-end", marginBottom: 10}}>
+        <Button title="Logout" // move to the bottom of the sidebar
+          onPress={onLogOut}
+          width={"90%"} height={50}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -67,54 +78,22 @@ const styles = StyleSheet.create({
   container:{
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    // justifyContent: "space-between",
     backgroundColor: "#dfdfdfff",
+    borderColor: "red", borderWidth: 1
   },
-  logout:{
-    fontSize: 15,
-    fontFamily: "helvetica-regular",
-    color: "#121212",
-    width: "20%",
-    height: "5%",
-    borderWidth: 1,
-    borderRadius: 10,
-    borderStyle: "solid",
-    borderColor: "#ffffffff",
-    marginTop: "5%",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  buttonText: {
-    fontSize: 17,
-    fontFamily: "helvetica-regular",
-    color: "#646464ff",
-  },
-
   gallery:{
-    width: "90%",
+    width: "100%",
     height: "55%",
   },
-
   photo:{
     width: "100%",
     height: "100%",
-    borderWidth: 1,
-    borderColor: "rgba(240, 180, 50, 1)",
-    borderRadius: 20,
-  },
-
-  username:{
-    fontSize: 35,
-    color: "#646464ff",
-    fontFamily: "helvetica-regular",
   },
   description: {
     fontFamily: "helvetica-regular",
-    color: "#646464b3",
-    fontSize: 14,
-    textAlign: "left",
-    lineHeight: 19,
-    marginTop: "5%",
-    marginLeft: 16
+    color: Palette.primary.textColor,
+    fontSize: 16,
+    // marginTop: "5%",
   },
-})
+});

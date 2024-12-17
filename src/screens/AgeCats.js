@@ -1,25 +1,26 @@
 import React, {useState, useEffect } from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import Button from "../components/Button";
+import { user, setUserProp } from "./userObjForSignUp";
 
 function AgeCats({navigation, route}) {
 
   const onPress = (from, to)=>{
-    route.params.user["ageCategory"] = {from, to};
-    navigation.navigate("Relationship", {...route.params});
+    setUserProp("ageCategory", {from, to});
+    navigation.navigate("Relationship");
   }
 
   return (
     <View style={styles.container}>
         <Text style={styles.question}>Choose your age category:</Text>
+        <TouchableOpacity onPress={()=>onPress(18, 28)} style={styles.button}>
+          <Text style={styles.buttonText}>18 - 28</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={()=>onPress(28, 38)} style={styles.button}>
           <Text style={styles.buttonText}>28 - 38</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={()=>onPress(38, 48)} style={styles.button}>
           <Text style={styles.buttonText}>38 - 48</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={()=>onPress(48, 58)} style={styles.button}>
-          <Text style={styles.buttonText}>48 - 58</Text>
         </TouchableOpacity>
     </View>
   );

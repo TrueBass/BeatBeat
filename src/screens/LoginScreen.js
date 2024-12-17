@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from 'react';
+import { React, useContext, useEffect, useState } from 'react';
 import { View,Image, StyleSheet, useWindowDimensions, Alert } from 'react-native';
 
 import Logo from '../../assets/Logo_1.png';
@@ -9,17 +9,21 @@ import { Palette } from '../colors/palette';
 import { auth } from '../../config/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
+import { AuthUserContext } from '../../App';
+
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailEmptyString, setEmailEmptyString] = useState(false);
     const [passwdEmptyString,setPasswdEmptyString] = useState(false);
     const {height} = useWindowDimensions();
+    const {setIsCreated} = useContext(AuthUserContext);
     
     const onLoginHandler = async () => {
       try {
         if (email !== "" && password !== "") {
           await signInWithEmailAndPassword(auth, email, password);
+          setIsCreated(true);
           console.log("Login successful");
         }
       } catch (error) {

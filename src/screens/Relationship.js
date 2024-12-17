@@ -1,11 +1,12 @@
 import React, {useEffect} from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import {user, setUserProp} from "./userObjForSignUp";
 
 function Relationship({navigation, route}) {
 
-  const onPress = (userOption)=>{
-    route.params.user["relationship"] = userOption;
-    navigation.navigate("YourSex", {...route.params});
+  const onPress = (relationship)=>{
+    setUserProp("relationship", relationship);
+    navigation.navigate("YourSex");
   }
 
   return (
