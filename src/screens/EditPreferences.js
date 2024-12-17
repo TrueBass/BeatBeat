@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, SafeAreaView, TextInput, ScrollView, Keyboard, TouchableWithoutFeedback, FlatList } from "react-native";
+import { StyleSheet, View, Text, TextInput, ScrollView, Keyboard, TouchableWithoutFeedback, FlatList } from "react-native";
+
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { sendPasswordResetEmail, updatePassword, verifyPasswordResetCode } from "firebase/auth";
 import RadioGroup from "../components/RadioGroup";
@@ -40,9 +42,9 @@ function EditPreferences({navigation, route}) {
     
     for(let k of Object.keys(changes)){
       if(JSON.stringify(changes[k]) != JSON.stringify(userProps[k])){
+        console.log(userProps[k], changes[k]);
         await updateProfileData(auth.currentUser.uid, changes);
-        route.params.isUserEdited = !route.params.isUserEdited;
-        navigation.replace("Profile", {isUserEdited: route.params.isUserEdited});
+        navigation.replace("Profile", {isUserEdited: !route.params.isUserEdited});
         return;
       }
     }
@@ -107,7 +109,7 @@ function EditPreferences({navigation, route}) {
           />
         </View>
 
-        <View style={{flexDirection:"row", justifyContent: "space-between", alignSelf: "stretch"}}>
+        <View style={{flexDirection:"row", justifyContent: "space-between", alignSelf: "stretch", marginBottom: 10}}>
           <BeatButton width="40%" height={50}
             title="Edit your gallery"
             onPress={onEditGallery}
@@ -130,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 200,
     padding: 10,
-    justifyContent: "center",
+    textAlignVertical: 'top',
     backgroundColor: "white",
   },
   container: { // good

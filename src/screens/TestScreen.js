@@ -1,18 +1,13 @@
-import {
-  FRONT_SOCKET_URI
-} from "@env";
 
-import { useCallback, useEffect, useState } from "react";
-import { Text, View, StyleSheet, FlatList, SafeAreaView, TextInput } from "react-native";
-import io from "socket.io-client"; 
+
+import { useCallback, useEffect, useState, useLayoutEffect } from "react";
+import { Text, View, StyleSheet, FlatList, SafeAreaView, TextInput, Platform, Alert, Image } from "react-native";
 import BeatButton from "../components/Button";
 
-import { getUserProfile } from "../user";
+import { fetchUserAvatar, getUserProfile } from "../user";
 import { auth } from "../../config/firebase";
-
-// const socket = io(FRONT_SOCKET_URI);
-// const socket = io("http:// 192.168.56.1:3001");
-
+import { socket } from "../../utils";
+import { GiftedChat, Bubble } from "react-native-gifted-chat";
 
 ////////////////////////////////////
 // DONT REMOVE ANY COMMENTS       //
@@ -26,75 +21,88 @@ import { auth } from "../../config/firebase";
 export default function TestChat({navigation}){
   
   const [roomId, setRoomId] = useState("");
-  // let roomId = "";
+  const [userAvatar, setUserAvatar] = useState("");
   const [slave, setSlave] = useState({});
   const [master, setMaster] = useState({});
   const [messages,setMessages] = useState([]);
-  const [message, setMsg] = useState("");
-  const [receivedMsg, setReceivedMsg] = useState("");
-  // const [socket, setSocket] = useState();
-  
-  // useEffect(()=>{ // DONT TOUCH THIS USEEFFECT
-  //   // setSocket(io(FRONT_SOCKET_URI));
-  //   // socket.connect();
-  //   (async ()=>{
-  //     const user = await getUserProfile(auth.currentUser.uid);
-  //     user["friends"] = {
-  //       uid: user.username == "test2"? "BultKSwW43fvH2JVrtVwvViOTrf1": "K44844gGR6YVgam3DL5ylrQEWkg2"
-  //     };
-  //     user["uid"] = auth.currentUser.uid;
-  //     setRoomId([user.friends.uid,auth.currentUser.uid].sort().join(""));
-  //     // roomId = [user.friends.uid,auth.currentUser.uid].sort().join("");
-  //     socket.emit("join_room", {roomId: [user.friends.uid,auth.currentUser.uid].sort().join("")});
-  //     setMaster(user);
-  //   })();
-  //   console.log("Socket connected:",socket.connected);
-  //   socket.on("receive_message", (data)=>{
-  //     console.log("Rec:", data.message);
-  //     setMessages([...messages, {text: data.message, id: messages.length}]);
-  //   });
-  // }, []);
-  
-  // useEffect(()=>{
-  //   console.log("In use effect [socket]");
-    
-    
-  // }, [socket]);
 
-  function onSend(){ // DONT TOUCH THAT NEITHER
-    // if(message === "") return;
-    // console.log("sent");
-    // // setMessages([...messages, {text: message, id: messages.length}]);
-    // socket.emit("send_message", {master, message, roomId});
-    // setMsg("");
+  const renderBubble = (props) => {
+    return (
+      <Bubble {...props}
+        wrapperStyle={{
+          left: { backgroundColor: '#e6e6e6' },
+          right: { backgroundColor: '#006DAA'},
+          // right: { backgroundColor: '#FF5A5F'},
+      }}/>
+    );
+  };
+  
+  useEffect(()=>{ // DONT TOUCH THIS USEEFFECT
+    // tests10 and 9
+    (async ()=>{
+      const user = await getUserProfile(auth.currentUser.uid);
+      console.log(user.username, Platform.OS);
+      setRoomId("G64G6GM0ZycuI1ljmhHbY7pUswJ3HmpjuvbBpGMWDfNQGwvd9YE66Xy1");
+      // roomId = [user.friends.uid,auth.currentUser.uid].sort().join("");
+      socket.emit("join_room", {roomId: "G64G6GM0ZycuI1ljmhHbY7pUswJ3HmpjuvbBpGMWDfNQGwvd9YE66Xy1"});
+      setMaster(user);
+    })();
+    console.log("Socket connected:", socket.connected);
+  }, []);
+  
+  function onRec(data) {
+    console.log(`Rec: ${data[0].text}`);
+    setMessages(prevMessages => GiftedChat.append(
+      prevMessages, data.message
+    ));
+    // setReceivedMsg(data.message);
+  }
+
+  useEffect(()=>{
+    // console.log("In use effect [socket]");
+    if (!socket.hasListeners("receive_message")) {
+      console.log("Registering listener for 'receive_message'");
+
+      socket.on("receive_message", (data)=>{
+        setMessages(prevMessages => GiftedChat.append(
+          prevMessages, data.message
+        ));
+      });
+    }
+    // console.log(userAvatar);
+
+    return () => {
+        console.log("Cleaning up listener for 'receive_message'");
+        socket.off("receive_message");
+    };
+  }, []);
+
+  function onSend(message){ // DONT TOUCH THAT NEITHER
+    console.log(message[0].text);
+    if(message === "") return;
+    console.log("sent");
+    // setMessages(prevMessages => [...prevMessages, { text: message, id: prevMessages.length + 1 }]);
+    setMessages(prevMessages => GiftedChat.append(prevMessages, message,));
+    socket.emit("send_message", {master, message: message, roomId});
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Message: "{receivedMsg}"</Text>
-      <TextInput value={message} onChangeText={setMsg}/>
-      <BeatButton onPress={onSend} title="Send" />
-      
-      <FlatList style={styles.flatList}
-      data={messages}
-      keyExtractor={item=>item.id}
-      renderItem={
-        ({item})=><Text style={{fontSize: 16, borderColor: "red", borderWidth: 1, color: "black"}}>{item.text}</Text>
-      }
-      /> 
-    </SafeAreaView>
+      <GiftedChat bottomOffset={Platform.OS == "android"? 50: 30}
+        messages={messages} onSend={message => onSend(message)}
+        user={{
+          _id: auth.currentUser.uid,
+          name: master?.username,
+          avatar: userAvatar
+        }}
+        renderBubble={renderBubble}
+      />
+     </SafeAreaView> 
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 120,
     flex: 1,
-    justifyContent: "center",
-    // alignItems: "stretch"
   },
-  flatList: {
-    flex: 1,
-    backgroundColor: "#e7e7e7",
-  }
 });

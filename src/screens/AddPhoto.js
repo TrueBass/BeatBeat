@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
 
   showYourself: {
-    fontFamily: "helvetica-regular",
+    fontFamily: "Helvetica",
     color: "rgba(145,145,145,1)",
     fontSize: 16,
   },

@@ -4,7 +4,7 @@ import { View, ActivityIndicator, StyleSheet, Text} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import {auth} from "./config/firebase";
+import { auth } from "./config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Palette } from "./src/colors/palette";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -20,6 +20,9 @@ import Profile from "./src/screens/Profile";
 import AddPhoto from "./src/screens/AddPhoto";
 import EditPreferences from "./src/screens/EditPreferences";
 import TestChat from "./src/screens/TestScreen";
+import SwipePhotosScreen from "./src/screens/SwipePhotosScreen";
+import ChatsList from "./src/screens/ChatsList";
+import { ScreenStackHeaderBackButtonImage } from "react-native-screens";
 
 const Stack = createStackNavigator();
 export const AuthUserContext = createContext({});
@@ -49,7 +52,7 @@ function AuthStack(){
   );
 }
 
-// function ChatStack(){
+// function MainStack(){
 //   return (
 //     <Stack.Navigator initialRouteName="Profile" screenOptions={{headerShown: false}}>
 //       {/* <Stack.Screen name="Home" component={Home}/>
@@ -74,30 +77,40 @@ function ProfileStack(){
   );
 }
 
-function Second(){
-
+function ChatStack(){
   return (
-    <View style={{flex: 1, justifyContent: "center"}}>
-      <Text>Second</Text>
-    </View>
+    <Stack.Navigator initialRouteName="Chats"
+    screenOptions={{headerShown: false, animation: "fade"}}>
+      <Stack.Screen name="ChatRoom" component={TestChat}/>
+      <Stack.Screen name="Chats" component={ChatsList}/>
+    </Stack.Navigator>
   );
 }
 
-
-function ChatStack(){
+function MainStack(){
   return (
-    <Tab.Navigator screenOptions={{headerShown: false, tabBarActiveTintColor: "black"}}>
-      {/* <Stack.Screen name="Home" component={Home}/>
-      <Stack.Screen name="Chat" component={Chat}/> */}
+    <Tab.Navigator screenOptions={{headerShown: false, tabBarActiveTintColor: "black", tabBarStyle: {height: 70}}}>
       <Tab.Screen name="ProfileStack" component={ProfileStack}
         options={{
           tabBarLabel: "Profile",
-          tabBarLabelStyle: {fontSize: 16},
-          tabBarIcon: (color)=><MaterialCommunityIcons name="account" size={32} color={color} />
+          tabBarLabelStyle: {fontSize: 16, fontFamily: "Helvetica", fontWeight: "light"},
+          tabBarIcon: ({color})=><MaterialCommunityIcons name="account" size={32} color={color} />
         }}
       />
-      <Tab.Screen name="Second" component={Second}/>
-      <Tab.Screen name="Chat" component={TestChat}/>
+      <Tab.Screen name="Swipe" component={SwipePhotosScreen}
+        options={{
+          tabBarLabel: "Home",
+          tabBarLabelStyle: {fontSize: 16, fontFamily: "Helvetica", fontWeight: "light"},
+          tabBarIcon: ({color})=><MaterialCommunityIcons name="home" size={32} color={color} />
+        }}
+      />
+      <Tab.Screen name="ChatList" component={ChatStack}
+        options={{
+          tabBarLabel: "Chats",
+          tabBarLabelStyle: {fontSize: 16, fontFamily: "Helvetica", fontWeight: "light"},
+          tabBarIcon: ({color})=><MaterialCommunityIcons name="chat" size={32} color={color} />
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -128,10 +141,9 @@ function RootNavigator(){
   return (
     <NavigationContainer>
       { (user && isCreated)?
-        <ChatStack />:
+        <MainStack />:
         <AuthStack />
       }
-      {/* <ChatStack/> */}
     </NavigationContainer>
   );
 }

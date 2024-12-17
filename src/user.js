@@ -87,6 +87,16 @@ export const getUserProfile = async (userId) => {
   }
 };
 
+export const fetchUserAvatar = async (uid)=>{
+  const userRef = ref(realtimeDB, `users/${uid}/images/`);
+  const avatar = await get(realtimeDB, userRef);
+  if(avatar.exists()){
+    return avatar.val()[0];
+  } else {
+    return undefined;
+  }
+}
+
 export const updateProfileData = async (userId, profileData) => {
   try {
     const userRef = ref(realtimeDB, 'users/' + userId);
@@ -148,6 +158,7 @@ export async function addUserToRtdb(user, images){
   //   });
   // }
 }
+
  /**
  * Upload image to Firebase Realtime Database under the user's photos.
  * Ensures the user has no more than 4 photos.
@@ -179,6 +190,7 @@ export const uploadImageToRealtimeDatabase = async (base64Image, userId) => {
     console.log('Failed to upload image');
   }
 };
+
 export async function encodeToBase64(fileUri){
   const base64String = await FileSystem.readAsStringAsync(fileUri, {
     encoding: FileSystem.EncodingType.Base64,

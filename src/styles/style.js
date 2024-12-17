@@ -1,3 +1,5 @@
+import React from "react";
+import { Platform } from "react-native";
 import { Palette } from "../colors/palette";
 
 /**
@@ -8,7 +10,7 @@ import { Palette } from "../colors/palette";
 
 export const button = {
   fontSize: 15,
-  fontFamily: "helvetica-regular",
+  fontFamily: "Helvetica",
   alignItems: "center",
   justifyContent: "center",
   borderWidth: 1,
@@ -20,6 +22,14 @@ export const button = {
 
 export const buttonText = {
   fontSize: 16,
-  fontFamily: "helvetica-regular",
+  fontFamily: "Helvetica",
   color: Palette.primary.button.textColor,
 };
+
+export const toast = {
+  text1Style: {
+    fontFamily: "Helvetica",
+    fontSize: 16,
+  },
+  topOffset: 50,
+}
