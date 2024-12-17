@@ -3,11 +3,12 @@ import { View,Text,StyleSheet,Image, Dimensions } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated ,{ interpolate, useAnimatedStyle, useSharedValue, withSpring,useDerivedValue } from "react-native-reanimated";
 import { Gesture, GestureDetector , GestureHandlerRootView , PanGestureHandler} from "react-native-gesture-handler";
+import { runOnJS } from 'react-native-reanimated';
 
 const screenWidth = Dimensions.get('screen').width;
 export const beatCardWidth = screenWidth*0.8;
 
-export default function BeatCard({user,numbersOfCards,currentIndex,activeIndex}){
+export default function BeatCard({user,numbersOfCards,currentIndex,activeIndex,onResponse}){
 const translationX = useSharedValue(0);
 
     const animCard = useAnimatedStyle(() => ({
@@ -17,20 +18,6 @@ const translationX = useSharedValue(0);
             [1 - 1/5,1,1]
         ),
         transform: [
-        {
-            scale: interpolate(
-                activeIndex.value,
-                [currentIndex - 1 ,currentIndex, currentIndex + 1],
-                [0.95,1,1]
-            ),
-        },
-        { 
-            translateY: interpolate(
-            activeIndex.value,
-            [currentIndex - 1 ,currentIndex, currentIndex + 1],
-            [-30,0,0]
-        ),
-        },
         {
             translateX: translationX.value
         },
@@ -56,12 +43,13 @@ const gesture = Gesture.Pan()
             );
         })
         .onEnd((event) => {
-            if(Math.abs(event.velocityX)>400) {
+            if(Math.abs(event.velocityX)>900) {
+                const direction = event.velocityX > 0 ? true : false;
                 translationX.value = withSpring(Math.sign(event.velocityX)*500,
                 {
                     velocity: event.velocityX,
                 });
-                // onResponse(event.velocityX >0);
+                runOnJS(onResponse)(direction);
                 activeIndex.value = withSpring(currentIndex + 1);
             }else{
                 translationX.value = withSpring(0);
