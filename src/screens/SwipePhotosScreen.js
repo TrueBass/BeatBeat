@@ -8,16 +8,28 @@ import Animated ,{ interpolate, useAnimatedStyle, useSharedValue, withSpring,use
 import { Gesture, GestureDetector , GestureHandlerRootView , PanGestureHandler} from "react-native-gesture-handler";
 import { auth, realtimeDB } from '../../config/firebase';
 import { get, ref,child } from "firebase/database";
+import {getSimplifiedMatches,checkForMatch,onSwipeRight,onSwipeLeft} from "../matching";
 
 
 
 export default function SwipePhotosScreen(){
-    const [users, setUsers] = useState([
-        { id: 1, image: photo1, name: 'Den' },
-        { id: 2, image: photo2, name: 'Kror' },
-        { id: 3, image: photo3, name: 'Lukas' },
-    ]);
+const [users, setUsers] = useState([]);
    
+// const [users, setUsers] = useState([
+//     { id: 1, image: photo1, name: 'Den' },
+//     { id: 2, image: photo2, name: 'Kror' },
+//     { id: 3, image: photo3, name: 'Lukas' },
+// ]);
+
+
+useEffect(() => {
+    const fetchMatches = async () => {
+        const currentUserId = auth.currentUser.uid; 
+        const matches = await getSimplifiedMatches(currentUserId);
+        setUsers(matches);
+    };
+    fetchMatches();
+}, []);
 
 const activeIndex = useSharedValue(0);
 const [currentIndex,setCurrentIndex] = useState(0);
@@ -31,8 +43,13 @@ useAnimatedReaction(() => activeIndex.value, (value,prevValue) =>{
 
 const onResponse = (res, user) => {
     console.log("Odpowiedz uzytkownika:",res);
-    if(res)
+    if(res){
         console.log("Imie wybranego: ",user.name);
+        //onSwipeRight();
+    }
+    // else{
+    //     onSwipeLeft();
+    // }
     setUsers((prevUsers) => prevUsers.slice(1));
     activeIndex.value = activeIndex.value + 1;
     setCurrentIndex((prev) => prev + 1);

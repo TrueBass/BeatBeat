@@ -47,7 +47,6 @@ export const onSwipeRight = async (currentUserId, targetUserId) => {
 
   export const getPotentialMatches = async (currentUserId) => {
     try {
-      // Step 1: Get the current user's profile data
       const currentUserRef = ref(realtimeDB, `users/${currentUserId}`);
       const currentUserSnapshot = await get(currentUserRef);
   
@@ -55,48 +54,83 @@ export const onSwipeRight = async (currentUserId, targetUserId) => {
         console.error("Current user not found");
         return [];
       }
+  
       const curUserData = currentUserSnapshot.val();
+      if (!curUserData || typeof curUserData !== "object") {
+        console.error("Current user data is invalid");
+        return [];
+      }
+  
       const hostData = {
-        ageCategory: curUserData.ageCategory,
-        orientation: curUserData.orientation,
-        sex: curUserData.sex,
+        ageCategory: curUserData.ageCategory || {},
+        orientation: curUserData.orientation || "",
+        sex: curUserData.sex || "",
       };
-       // Step 2: Get users who have swiped 'right' on the current user
-    const swipesRef = ref(realtimeDB, `swipes/${currentUserId}`);
-    const swipesSnapshot = await get(swipesRef);
-    const swipedUsersIds = [];
-    const swipeData = swipesSnapshot.val();
-
-    for (const [swipedUserId, swipe] of Object.entries(swipeData)) {
-      if (swipe.swipeType === 'right') {
-        swipedUsersIds.push(swipedUserId);  // Collect the user ID of those who swiped right
+  
+      const swipesRef = ref(realtimeDB, `swipes/${currentUserId}`);
+      const swipesSnapshot = await get(swipesRef);
+      const swipedUsersIds = [];
+      const swipeData = swipesSnapshot.val();
+  
+      if (swipeData) {
+        for (const [swipedUserId, swipe] of Object.entries(swipeData)) {
+          if (swipe.swipeType === "right") {
+            swipedUsersIds.push(swipedUserId);
+          }
+        }
       }
+
+      const usersRef = ref(realtimeDB, "users");
+      const usersSnapshot = await get(usersRef);
+  
+      if (!usersSnapshot.exists()) {
+        console.error("No users found");
+        return [];
+      }
+  
+      const potentialMatches = [];
+      usersSnapshot.forEach((childSnapshot) => {
+        const userData = childSnapshot.val();
+        const userId = childSnapshot.key;
+  
+        if (!userData || typeof userData !== "object") return;
+  
+        const isUserSwipedRight = swipedUsersIds.includes(userId);
+        if (userId === currentUserId) return; 
+        if (userData.ageCategory.from !== hostData.ageCategory.from) return;
+  
+        if (isUserSwipedRight) {
+          potentialMatches.unshift(userData);
+        } else {
+          potentialMatches.push(userData);
+        }
+      });
+  
+      return potentialMatches;
+    } catch (error) {
+      console.error("Error fetching potential matches:", error);
+      return [];
     }
-       // Step 3: Get all users from the users collection
-    const usersRef = ref(realtimeDB, 'users');
-    const usersSnapshot = await get(usersRef);
-    let potentialMatches = [];
+  };
+  
 
-    usersSnapshot.forEach((childSnapshot) => {
-      const userData = childSnapshot.val();
-      const userId = childSnapshot.key;
-      const isUserSwipedRight = swipedUsersIds.includes(userId);
-      if (userId === currentUserId) return;
-      // Check for orientation compatibility?
-      // Check ageCategory match
-      if (userData.ageCategory.from !== hostData.ageCategory.from) return;
-      console.log("The users are: ", userData);
-      // Add the valid user to potential matches
-      if (isUserSwipedRight) {
-        potentialMatches.unshift(userData);  // Place at the beginning
-      } else {
-        potentialMatches.push(userData);    // Add to the end
-      }
-    });
-
-    return potentialMatches;
-  } catch (error) {
-    console.error("Error fetching potential matches:", error);
-    return [];
-  }
+  export const getSimplifiedMatches = async (currentUserId) => {
+    try {
+      const potentialMatches = await getPotentialMatches(currentUserId);
+  
+      const simplifiedMatches = potentialMatches.map((user, index) => {
+        return {
+          id: index + 1, 
+          name: user.name, 
+          image: Array.isArray(user.photos) ? user.photos[0] : user.photos,
+          //id_user: user.userId,
+        };
+      });
+  
+      console.log("Simplified matches:", simplifiedMatches);
+      return simplifiedMatches;
+    } catch (error) {
+      console.error("Error simplifying matches:", error);
+      return [];
+    }
   };
