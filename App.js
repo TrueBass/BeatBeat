@@ -23,13 +23,10 @@ import TestChat from "./src/screens/TestScreen";
 import SwipePhotosScreen from "./src/screens/SwipePhotosScreen";
 import ChatsList from "./src/screens/ChatsList";
 import { ScreenStackHeaderBackButtonImage } from "react-native-screens";
+
 const Stack = createStackNavigator();
 export const AuthUserContext = createContext({});
-//const currentUser="BultKSwW43fvH2JVrtVwvViOTrf1";
-//PLS DO NOT DELEET IT
-// getPotentialMatches(currentUser)
-//   .then(matches => console.log('Potential matches:', matches))
-//   .catch(err => console.error('Error fetching potential matches:', err));
+
 const AuthUserProvider = ({children}) => {
   const [user, setUser] = useState(null);
   const [isCreated, setIsCreated] = useState(false);
