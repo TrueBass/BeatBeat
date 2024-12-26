@@ -50,8 +50,32 @@ export const addToFriendsList = async (userID, friendID, chatroomId) => {
   }
 };
 
+// Add a user to a friend's list (appending user to their `friends` field)
+export const addToFriendsList = async (userID, friendID, chatroomId) => {
+  try {
+    const userRef = ref(realtimeDB, `users/${userID}/friends`);
+    const friendRef = ref(realtimeDB, `users/${friendID}/friends`);
+
+    await update(userRef, {
+      [friendID]: chatroomId
+    });
+    await update(friendRef, {
+      [userID]: chatroomId
+    });
+
+    //console.log(`Successfully added ${friendID} to ${userID}'s friends list and vice versa.`);
+  } catch (error) {
+    console.error("Error adding to friends list:", error);
+  }
+};
+
 // Create a new chatroom between two users
 export const createChatroom = async (myUserID, otherUserID) => {
+  const sortedUserIds = [myUserID, otherUserID].sort();
+  const chatroomId = sortedUserIds.join('_'); 
+  const chatroomRef = ref(realtimeDB, `chatrooms/${chatroomId}`);
+  
+  await set(chatroomRef, {
   const sortedUserIds = [myUserID, otherUserID].sort();
   const chatroomId = sortedUserIds.join('_'); 
   const chatroomRef = ref(realtimeDB, `chatrooms/${chatroomId}`);
