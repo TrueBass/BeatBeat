@@ -49,11 +49,12 @@ export const sortMessages = (messages) => {
 // Send a message to the chatroom
 export const sendMessage = async (chatroomId, msg) => {
   try {
-    const messageRef = ref(realtimeDB, `chatrooms/${chatroomId}/messages`);
+    const messageRef = ref(realtimeDB, `chatrooms/${chatroomId}/messages/`);
     await push(messageRef, {
+      _id: msg._id,
       text: msg.text,
-      sender: msg.sender,
-      createdAt: new Date().toISOString(), // Store the date as a string
+      user: msg.user,
+      createdAt: msg.createdAt.toISOString() // Store the date as a string
     });
   } catch (error) {
     console.error("Error sending message: ", error);

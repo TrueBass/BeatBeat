@@ -8,7 +8,7 @@ import { runOnJS } from 'react-native-reanimated';
 const screenWidth = Dimensions.get('screen').width;
 export const beatCardWidth = screenWidth*0.8;
 
-export default function BeatCard({user,numbersOfCards,currentIndex,activeIndex,onResponse}){
+export default function BeatCard({key = 1, user,numbersOfCards,currentIndex,activeIndex,onResponse}){
 const translationX = useSharedValue(0);
 
     const animCard = useAnimatedStyle(() => ({
@@ -57,8 +57,8 @@ const gesture = Gesture.Pan()
     });
 
  return(
- <GestureDetector gesture={gesture}>
-        <Animated.View 
+ <GestureDetector gesture={gesture} key={key*Math.random()}>
+        <Animated.View key={key*Math.random()+1}
      style={[
         styles.card,
         animCard,
@@ -66,18 +66,18 @@ const gesture = Gesture.Pan()
             zIndex: numbersOfCards - currentIndex, 
         }
         ]}>
-        <Image 
+        <Image key={key*Math.random()+2}
         style={[StyleSheet.absoluteFillObject,styles.image]} 
-        source={user.image}
+        source={{uri: user.image}}
         />
 
-        <LinearGradient
+        <LinearGradient key={key*Math.random()+3}
         colors={['transparent','rgba(0,0,0,0.8)']}
         style={[StyleSheet.absoluteFill,styles.overlay]}
         />
 
-        <View style={styles.footer}>
-            <Text style={styles.username}>{user.name}</Text>
+        <View style={styles.footer} key={key*Math.random()+4}>
+            <Text key={key*Math.random()+5} style={styles.username}>{user.name}</Text>
         </View>
      </Animated.View>
 </GestureDetector>

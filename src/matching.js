@@ -122,12 +122,11 @@ export const onSwipeRight = async (currentUserId, targetUserId) => {
         return {
           id: index + 1, 
           name: user.name, 
-          image: Array.isArray(user.photos) ? user.photos[0] : user.photos,
+          image: user.images[0]
           //id_user: user.userId,
         };
       });
   
-      console.log("Simplified matches:", simplifiedMatches);
       return simplifiedMatches;
     } catch (error) {
       console.error("Error simplifying matches:", error);

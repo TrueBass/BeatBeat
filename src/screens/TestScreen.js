@@ -1,5 +1,3 @@
-
-
 import { useCallback, useEffect, useState, useLayoutEffect } from "react";
 import { Text, View, StyleSheet, FlatList, SafeAreaView, TextInput, Platform, Alert, Image } from "react-native";
 import BeatButton from "../components/Button";
@@ -8,6 +6,7 @@ import { fetchUserAvatar, getUserProfile } from "../user";
 import { auth } from "../../config/firebase";
 import { socket } from "../../utils";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
+import { sendMessage, fetchMessages } from "../messaging";
 
 ////////////////////////////////////
 // DONT REMOVE ANY COMMENTS       //
@@ -18,7 +17,7 @@ import { GiftedChat, Bubble } from "react-native-gifted-chat";
 // AND RTDB DATA                  //
 ////////////////////////////////////
 
-export default function TestChat({navigation}){
+export default function TestChat({navigation, route}){
   
   const [roomId, setRoomId] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
@@ -32,7 +31,6 @@ export default function TestChat({navigation}){
         wrapperStyle={{
           left: { backgroundColor: '#e6e6e6' },
           right: { backgroundColor: '#006DAA'},
-          // right: { backgroundColor: '#FF5A5F'},
       }}/>
     );
   };
@@ -40,17 +38,26 @@ export default function TestChat({navigation}){
   useEffect(()=>{ // DONT TOUCH THIS USEEFFECT
     // tests10 and 9
     (async ()=>{
+      setRoomId(route.params.roomId);
+      socket.emit("join_room", {roomId: route.params.roomId});
       const user = await getUserProfile(auth.currentUser.uid);
-      console.log(user.username, Platform.OS);
-      setRoomId("G64G6GM0ZycuI1ljmhHbY7pUswJ3HmpjuvbBpGMWDfNQGwvd9YE66Xy1");
-      // roomId = [user.friends.uid,auth.currentUser.uid].sort().join("");
-      socket.emit("join_room", {roomId: "G64G6GM0ZycuI1ljmhHbY7pUswJ3HmpjuvbBpGMWDfNQGwvd9YE66Xy1"});
       setMaster(user);
+
+      let chatRoomMsgs = Object.values(await fetchMessages(route.params.roomId));
+      if(chatRoomMsgs.length == 0) return;
+      for(let i = 0; i < chatRoomMsgs.length; ++i){
+        chatRoomMsgs[i].createdAt = new Date(chatRoomMsgs[i].createdAt);
+      }
+      chatRoomMsgs = chatRoomMsgs.sort((a,b)=>b.createdAt-a.createdAt);
+      
+      setMessages(prevMessages => GiftedChat.append(
+        prevMessages, chatRoomMsgs
+      ));
     })();
     console.log("Socket connected:", socket.connected);
   }, []);
   
-  function onRec(data) {
+  function onRec(data) { 
     console.log(`Rec: ${data[0].text}`);
     setMessages(prevMessages => GiftedChat.append(
       prevMessages, data.message
@@ -77,12 +84,11 @@ export default function TestChat({navigation}){
     };
   }, []);
 
-  function onSend(message){ // DONT TOUCH THAT NEITHER
-    console.log(message[0].text);
+  async function onSend(message){ // DONT TOUCH THAT NEITHER
     if(message === "") return;
     console.log("sent");
-    // setMessages(prevMessages => [...prevMessages, { text: message, id: prevMessages.length + 1 }]);
-    setMessages(prevMessages => GiftedChat.append(prevMessages, message,));
+    await sendMessage(route.params.roomId, message[0]);
+    setMessages(prevMessages => GiftedChat.append(prevMessages, message));
     socket.emit("send_message", {master, message: message, roomId});
   }
 
@@ -93,8 +99,13 @@ export default function TestChat({navigation}){
         user={{
           _id: auth.currentUser.uid,
           name: master?.username,
-          avatar: userAvatar
         }}
+        renderUsername={(props) => 
+            <View>
+              <Text>{props.currentMessage.user.name}</Text>
+              {props.renderBubble(props)}
+            </View>
+          }
         renderBubble={renderBubble}
       />
      </SafeAreaView> 

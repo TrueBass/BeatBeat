@@ -8,7 +8,7 @@ import Animated ,{ interpolate, useAnimatedStyle, useSharedValue, withSpring,use
 import { Gesture, GestureDetector , GestureHandlerRootView , PanGestureHandler} from "react-native-gesture-handler";
 import { auth, realtimeDB } from '../../config/firebase';
 import { get, ref,child } from "firebase/database";
-import {getSimplifiedMatches,checkForMatch,onSwipeRight,onSwipeLeft} from "../matching";
+import {getSimplifiedMatches,checkForMatch,onSwipeRight,onSwipeLeft, getPotentialMatches} from "../matching";
 
 
 
@@ -24,8 +24,9 @@ const [users, setUsers] = useState([]);
 
 useEffect(() => {
     const fetchMatches = async () => {
-        const currentUserId = auth.currentUser.uid; 
+        const currentUserId = auth.currentUser.uid;
         const matches = await getSimplifiedMatches(currentUserId);
+        console.log(matches[0].id);
         setUsers(matches);
     };
     fetchMatches();

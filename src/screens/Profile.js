@@ -1,5 +1,5 @@
 import { React, useEffect, useState, useCallback } from 'react';
-import { View, Image,Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
+import { View, Image,Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/Button';
 
@@ -15,19 +15,16 @@ export default function Profile({navigation, route}){
   const [user, setUser] = useState({});
   const [images, setImgs] = useState([]);
   const [currentImage, setCurrentImage] = useState(0);
+  const [imgsLoaded, setImgsLoaded] = useState(false);
+  const [userLoaded, setUserLoaded] = useState(false);
 
   useEffect(()=>{
     const userRef = ref(realtimeDB, "users/"+auth.currentUser.uid);
     (async()=>await get(userRef).then(snapshot=>{
       if(snapshot.exists()){
         const snapVal = snapshot.val();
-        let snapWithoutImgs = {};
-        for(let key of Object.keys(snapVal)){
-          if(key == "images") continue;
-          snapWithoutImgs[key] = snapVal[key];
-        }
-        setImgs(snapVal.images);
-        setUser(snapWithoutImgs);
+        setUser(snapVal);
+        setUserLoaded(true);
       }else console.log("no data in the snap");
     })
     .catch(error=>{
@@ -40,6 +37,20 @@ export default function Profile({navigation, route}){
       setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
   }, [images!=undefined?images.length: ""]);
 
+  useEffect(()=>{
+    const imagesRef = ref(realtimeDB, "images/"+auth.currentUser.uid);
+    (async()=>await get(imagesRef).then(snapshot=>{
+      if(snapshot.exists()) {
+        const snapVal = snapshot.val();
+        setImgs(Object.values(snapVal));
+        setImgsLoaded(true);
+      } else console.log("no data in the snap");
+    })
+    .catch(error=>{
+      Alert.alert("Error", error.message);
+    }))();
+  },[userLoaded]);
+
   const onLogOut = () => {
     // move logout to the bottom of the sidebar
     signOut(auth).catch(err => console.log(err));
@@ -48,6 +59,14 @@ export default function Profile({navigation, route}){
   const onEdit = ()=>{
     
     navigation.replace("Edit", {...route.params, user});
+  }
+
+  if(!userLoaded){
+    return (
+      <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+        <ActivityIndicator size="large"/>
+      </View>
+    );
   }
 
   return(
@@ -59,7 +78,11 @@ export default function Profile({navigation, route}){
         />
       </View>
       <TouchableOpacity onPress={imagePressHandle} style={styles.gallery}>
-          <Image source={{uri: images[currentImage]}} style={styles.photo}/>
+          {(!imgsLoaded)?
+          <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+            <ActivityIndicator size="large"/>
+          </View>:
+          <Image source={{uri: images[currentImage]}} style={styles.photo}/>}
       </TouchableOpacity>
       <Text style={[buttonText, {fontSize: 35}]}>{user.name||"unknown"}</Text>
       <Text style={[buttonText, {fontSize: 35}]}>{user.sex||"unknown"}</Text>

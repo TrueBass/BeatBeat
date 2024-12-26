@@ -44,11 +44,11 @@ function EditPreferences({navigation, route}) {
       if(JSON.stringify(changes[k]) != JSON.stringify(userProps[k])){
         console.log(userProps[k], changes[k]);
         await updateProfileData(auth.currentUser.uid, changes);
-        navigation.replace("Profile", {isUserEdited: !route.params.isUserEdited});
+        navigation.replace("Profile", {isUserEdited: true});
         return;
       }
     }
-    navigation.replace("Profile", {isUserEdited: route.params.isUserEdited});
+    navigation.replace("Profile", {isUserEdited: false});
   }
 
   function onEditGallery(){

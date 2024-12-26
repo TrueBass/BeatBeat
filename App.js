@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useState} from "react";
 import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator, StyleSheet, Text} from "react-native";
+import { View, ActivityIndicator, StyleSheet, Text, Button} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { auth } from "./config/firebase";
+import { auth, realtimeDB } from "./config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Palette } from "./src/colors/palette";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -22,7 +22,7 @@ import EditPreferences from "./src/screens/EditPreferences";
 import TestChat from "./src/screens/TestScreen";
 import SwipePhotosScreen from "./src/screens/SwipePhotosScreen";
 import ChatsList from "./src/screens/ChatsList";
-import { ScreenStackHeaderBackButtonImage } from "react-native-screens";
+
 const Stack = createStackNavigator();
 export const AuthUserContext = createContext({});
 //const currentUser="BultKSwW43fvH2JVrtVwvViOTrf1";
@@ -75,7 +75,7 @@ function ProfileStack(){
     <Stack.Navigator initialRouteName="Profile"
     screenOptions={{headerShown: false, animation: "fade"}}>
       <Stack.Screen name="Edit" component={EditPreferences} />
-      <Stack.Screen name="Profile" component={Profile} initialParams={{isUserEdited: false}}/>
+      <Stack.Screen name="Profile" component={Profile} initialParams={{isUserEdited: true}}/>
     </Stack.Navigator>
   );
 }
@@ -83,7 +83,7 @@ function ProfileStack(){
 function ChatStack(){
   return (
     <Stack.Navigator initialRouteName="Chats"
-    screenOptions={{headerShown: false, animation: "fade"}}>
+    screenOptions={{ animation: "fade"}}>
       <Stack.Screen name="ChatRoom" component={TestChat}/>
       <Stack.Screen name="Chats" component={ChatsList}/>
     </Stack.Navigator>
@@ -92,24 +92,23 @@ function ChatStack(){
 
 function MainStack(){
   return (
-    <Tab.Navigator screenOptions={{headerShown: false, tabBarActiveTintColor: "black", tabBarStyle: {height: 70}}}>
+    <Tab.Navigator screenOptions={{headerShown: false, tabBarActiveTintColor: "black", tabBarStyle: {height: 70}, tabBarShowLabel: false}}>
       <Tab.Screen name="ProfileStack" component={ProfileStack}
         options={{
-          tabBarLabel: "Profile",
           tabBarLabelStyle: {fontSize: 16, fontFamily: "Helvetica", fontWeight: "light"},
           tabBarIcon: ({color})=><MaterialCommunityIcons name="account" size={32} color={color} />
         }}
       />
       <Tab.Screen name="Swipe" component={SwipePhotosScreen}
         options={{
-          tabBarLabel: "Home",
+          
           tabBarLabelStyle: {fontSize: 16, fontFamily: "Helvetica", fontWeight: "light"},
           tabBarIcon: ({color})=><MaterialCommunityIcons name="home" size={32} color={color} />
         }}
       />
       <Tab.Screen name="ChatList" component={ChatStack}
         options={{
-          tabBarLabel: "Chats",
+          
           tabBarLabelStyle: {fontSize: 16, fontFamily: "Helvetica", fontWeight: "light"},
           tabBarIcon: ({color})=><MaterialCommunityIcons name="chat" size={32} color={color} />
         }}
@@ -135,7 +134,11 @@ function RootNavigator(){
 
   if(loading){
     return (
-      <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+      <View style={{
+        flex: 1,
+        justifyContent: "center", alignItems: "center",
+        backgroundColor: Palette.primary.background
+      }}>
         <ActivityIndicator size="large"/>
       </View>
     );
