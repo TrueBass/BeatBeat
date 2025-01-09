@@ -1,6 +1,7 @@
 import { ref, get, set, update} from 'firebase/database';
 import { realtimeDB } from '../config/firebase'
 import { createChatroom, addToFriendsList } from './chatHelpers'; 
+import { fetchUserAvatar } from './user';
 export const checkForMatch = async (currentUserId, targetUserId) => {
     try {
       const targetSwipeRef = ref(realtimeDB, `/swipes/${currentUserId}/${targetUserId}`);
@@ -12,7 +13,9 @@ export const checkForMatch = async (currentUserId, targetUserId) => {
           // Both users have swiped right on each other, create a match
           const chatKey = await createChatroom(currentUserId, targetUserId);
           await addToFriendsList(currentUserId, targetUserId, chatKey);
+          return true;
         }
+        return false;
       }
     } catch (error) {
       console.error("Error checking for match: ", error);
@@ -135,9 +138,10 @@ export const getPotentialMatches = async (currentUserId) => {
   
       // Prepare match data
       const matchData = {
+        id: Date.now(),
         userId,  // Include the userId as it's the key of the user node
-        username: potentialMatch.username || "Unknown",  // Include the username or a default if missing
-        autoBio: potentialMatch.autoBio || "", // Include autoBio (or empty string if not present)
+        name: potentialMatch.name || "Unknown",  // Include the username or a default if missing
+        autobio: potentialMatch.autobio || "", // Include autoBio (or empty string if not present)
       };
   
       // If user swiped right on the current user, consider them as a potential match
@@ -147,8 +151,14 @@ export const getPotentialMatches = async (currentUserId) => {
         potentialMatches.push(matchData); // Add to the end if not swiped right
       }
     });
+    const updatedMatches = await Promise.all(
+      potentialMatches.map(async (user) => ({
+        ...user,
+        image: await fetchUserAvatar(user.userId) || "",
+      }))
+    );
 
-    return potentialMatches;
+    return updatedMatches;
   } catch (error) {
     console.error("Error fetching potential matches:", error);
     return [];
@@ -161,11 +171,12 @@ export const getPotentialMatches = async (currentUserId) => {
       const potentialMatches = await getPotentialMatches(currentUserId);
   
       const simplifiedMatches = potentialMatches.map((user, index) => {
+        console.log(user.name);
         return {
           id: index + 1, 
-          name: user.name, 
-          image: user.images[0]
-          //id_user: user.userId,
+          name: user.username, 
+          image: user.image,
+          // id_user: user.userId,
         };
       });
   

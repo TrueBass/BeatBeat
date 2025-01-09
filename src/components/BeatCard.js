@@ -8,7 +8,7 @@ import { runOnJS } from 'react-native-reanimated';
 const screenWidth = Dimensions.get('screen').width;
 export const beatCardWidth = screenWidth*0.8;
 
-export default function BeatCard({key = 1, user,numbersOfCards,currentIndex,activeIndex,onResponse}){
+export default function BeatCard({childkey = 1, user,numbersOfCards,currentIndex,activeIndex,onResponse}){
 const translationX = useSharedValue(0);
 
     const animCard = useAnimatedStyle(() => ({
@@ -24,7 +24,7 @@ const translationX = useSharedValue(0);
         {
             rotateZ:`${interpolate(
                 translationX.value, 
-                [-screenWidth/2,0,screenWidth/2],
+                [-(screenWidth+beatCardWidth+50)/2,0,(screenWidth+beatCardWidth+50)/2],
                 [-15,0,15]
             )}deg`
         },
@@ -57,8 +57,8 @@ const gesture = Gesture.Pan()
     });
 
  return(
- <GestureDetector gesture={gesture} key={key*Math.random()}>
-        <Animated.View key={key*Math.random()+1}
+ <GestureDetector gesture={gesture} key={childkey+1}>
+        <Animated.View key={childkey+2}
      style={[
         styles.card,
         animCard,
@@ -66,18 +66,18 @@ const gesture = Gesture.Pan()
             zIndex: numbersOfCards - currentIndex, 
         }
         ]}>
-        <Image key={key*Math.random()+2}
+        <Image key={childkey+3}
         style={[StyleSheet.absoluteFillObject,styles.image]} 
         source={{uri: user.image}}
         />
 
-        <LinearGradient key={key*Math.random()+3}
+        <LinearGradient key={childkey+4}
         colors={['transparent','rgba(0,0,0,0.8)']}
         style={[StyleSheet.absoluteFill,styles.overlay]}
         />
 
-        <View style={styles.footer} key={key*Math.random()+4}>
-            <Text key={key*Math.random()+5} style={styles.username}>{user.name}</Text>
+        <View style={styles.footer} key={childkey+5}>
+            <Text key={childkey+6} style={styles.username}>{user.name}</Text>
         </View>
      </Animated.View>
 </GestureDetector>

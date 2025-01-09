@@ -55,12 +55,15 @@ export const getUserProfile = async (userId) => {
 };
 
 export const fetchUserAvatar = async (uid)=>{
-  const userRef = ref(realtimeDB, `images/${uid}/1`);
-  const avatar = await get(realtimeDB, userRef);
+  try
+  {const userRef = ref(realtimeDB, `images/${uid}/0`);
+  const avatar = await get(userRef);
   if(avatar.exists()){
     return avatar.val();
   } else {
     return undefined;
+  }}catch(e){
+    console.log(e.message);
   }
 }
 export const fetchImages = async (uid)=>{

@@ -1,75 +1,82 @@
 import React, { useEffect, useState } from "react";
-import { View,StyleSheet, Button } from "react-native";
+import { View,StyleSheet, Text, ActivityIndicator, ToastAndroid } from "react-native";
 import BeatCard from "../components/BeatCard";
-import photo1 from "../screens/fillPhotos/sexy_men.jpg";
-import photo2 from "../screens/fillPhotos/sexy_men2.jpg";
-import photo3 from "../screens/fillPhotos/sexy_men3.jpg";
-import Animated ,{ interpolate, useAnimatedStyle, useSharedValue, withSpring,useDerivedValue, useAnimatedReaction, runOnJS } from "react-native-reanimated";
-import { Gesture, GestureDetector , GestureHandlerRootView , PanGestureHandler} from "react-native-gesture-handler";
-import { auth, realtimeDB } from '../../config/firebase';
-import { get, ref,child } from "firebase/database";
-import {getSimplifiedMatches,checkForMatch,onSwipeRight,onSwipeLeft, getPotentialMatches} from "../matching";
-
+import { useSharedValue, useAnimatedReaction, runOnJS } from "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { auth } from '../../config/firebase';
+import { checkForMatch, getPotentialMatches, onSwipeLeft, onSwipeRight} from "../matching";
+import { Palette } from "../colors/palette";
+import Toast from "react-native-toast-message";
 
 
 export default function SwipePhotosScreen(){
 const [users, setUsers] = useState([]);
-   
-// const [users, setUsers] = useState([
-//     { id: 1, image: photo1, name: 'Den' },
-//     { id: 2, image: photo2, name: 'Kror' },
-//     { id: 3, image: photo3, name: 'Lukas' },
-// ]);
-
+const [loading, setLoading] = useState(true);
 
 useEffect(() => {
-    const fetchMatches = async () => {
+    (async()=>{
         const currentUserId = auth.currentUser.uid;
-        const matches = await getSimplifiedMatches(currentUserId);
-        console.log(matches[0].id);
+        const matches = await getPotentialMatches(currentUserId);
         setUsers(matches);
-    };
-    fetchMatches();
+        setLoading(false);
+    })();
 }, []);
 
 const activeIndex = useSharedValue(0);
 const [currentIndex,setCurrentIndex] = useState(0);
 
-useAnimatedReaction(() => activeIndex.value, (value,prevValue) =>{
+useAnimatedReaction(() => activeIndex.value, (value, prevValue) =>{
     if (Math.floor(value) !== currentIndex){
         runOnJS(setCurrentIndex)(Math.floor(value));
     }
-}
-)
+});
 
-const onResponse = (res, user) => {
-    console.log("Odpowiedz uzytkownika:",res);
+const onResponse = async(res, user) => {
     if(res){
-        console.log("Imie wybranego: ",user.name);
-        //onSwipeRight();
-    }
-    // else{
-    //     onSwipeLeft();
-    // }
-    setUsers((prevUsers) => prevUsers.slice(1));
-    activeIndex.value = activeIndex.value + 1;
+			await onSwipeRight(auth.currentUser.uid, user.userId);
+			const result = await checkForMatch(auth.currentUser.uid, user.userId);
+			result && Toast.show({text1: "Yaaay", text2: "You've got a match!"});
+		}else{
+			await onSwipeLeft(auth.currentUser.uid, user.userId);
+		}
+    activeIndex.set(old=>old+1);
     setCurrentIndex((prev) => prev + 1);
 };
 
+if(loading){
+    return (
+        <View style={{
+        flex: 1,
+        justifyContent: "center", alignItems: "center",
+        backgroundColor: Palette.primary.background
+        }}>
+        <ActivityIndicator size="large"/>
+        </View>
+    );
+}
 
 return(
     <GestureHandlerRootView style={styles.cards}>
         <View style={styles.cards}>
-        {users.map((user,index) =>(
-            <BeatCard
-            key={user.id}
-            user={user}
-            numbersOfCards={users.length}
-            currentIndex={index}
-            activeIndex={activeIndex}
-            onResponse = {(res) => onResponse(res,user)}
-            />
-        ))}
+				<Toast/>
+        {currentIndex!=users.length?
+            users.map((user,index) =>(
+                <BeatCard
+                key={index}
+                childkey={user.id}
+                user={user}
+                numbersOfCards={users.length}
+                currentIndex={index}
+                activeIndex={activeIndex}
+                onResponse = {(res) => onResponse(res,user)}
+                />
+            )):
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={{fontSize: 20, fontFamily: "Helvetica"}}>
+                    Still finding people for you
+                </Text>
+            </View>
+        }
         {/* <View>
         <Button 
             title="Yes" 
