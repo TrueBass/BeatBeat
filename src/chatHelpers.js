@@ -1,3 +1,4 @@
+import { Title } from 'react-native-paper';
 import { realtimeDB } from '../config/firebase';
 import {
   get,
@@ -65,6 +66,16 @@ export const createChatroom = async (myUserID, otherUserID) => {
   return chatroomId;  // Return the newly created chatroom ID
 };
 
+const getUsername = async(userId)=>{
+  try{
+    const userRef = ref(realtimeDB, `users/${userId}/name`);
+    const username = await get(userRef);
+    
+    return username.exists()? username.val(): null;
+  }catch(e){
+    console.log("Getting username error:", e.message);
+  }
+}
 
 export const getUserChatrooms = async (userId) => {
   try {
@@ -72,8 +83,12 @@ export const getUserChatrooms = async (userId) => {
     const snapshot = await get(friendsRef);
     if (snapshot.exists()) {
       const friends = snapshot.val();
-      const chatroomIds = Object.values(friends);
-      console.log(chatroomIds);
+      const chatroomIds = await Promise.all(
+        Object.entries(friends).map(async ([friendId, chatId]) => {
+          const username = await getUsername(friendId); // Fetch username for each friend
+          return { title: username, id: chatId };
+        })
+      );
       return chatroomIds;
     } else {
       console.log("No data available for user.");

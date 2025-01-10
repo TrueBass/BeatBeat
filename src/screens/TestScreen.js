@@ -8,14 +8,6 @@ import { socket } from "../../utils";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 import { sendMessage, fetchMessages } from "../messaging";
 
-////////////////////////////////////
-// DONT REMOVE ANY COMMENTS       //
-// I NEED THEM LATER              //
-// JUST MAKE FAKE DATA FOR CHAT   //
-// ADD SOMETHING BUT DONT REMOVE  //
-// I WILL WORK ON SOCKETS         //
-// AND RTDB DATA                  //
-////////////////////////////////////
 
 export default function TestChat({navigation, route}){
   
@@ -68,8 +60,6 @@ export default function TestChat({navigation, route}){
   useEffect(()=>{
     // console.log("In use effect [socket]");
     if (!socket.hasListeners("receive_message")) {
-      console.log("Registering listener for 'receive_message'");
-
       socket.on("receive_message", (data)=>{
         setMessages(prevMessages => GiftedChat.append(
           prevMessages, data.message
@@ -79,7 +69,6 @@ export default function TestChat({navigation, route}){
     // console.log(userAvatar);
 
     return () => {
-        console.log("Cleaning up listener for 'receive_message'");
         socket.off("receive_message");
     };
   }, []);

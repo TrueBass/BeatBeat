@@ -8,7 +8,6 @@ export const fetchMessages = async (chatroomId) => {
 
     if (snapshot.exists()) {
      // const messages = snapshot.val();
-     console.log("fetchMessages fun", snapshot.val());
       return snapshot.val();
     } else {
       console.log("No messages found for this chatroom.");

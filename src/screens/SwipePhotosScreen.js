@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { auth } from '../../config/firebase';
 import { checkForMatch, getPotentialMatches, onSwipeLeft, onSwipeRight} from "../matching";
 import { Palette } from "../colors/palette";
+import { toast } from "../styles/style";
 import Toast from "react-native-toast-message";
 
 
@@ -35,8 +36,15 @@ const onResponse = async(res, user) => {
     if(res){
 			await onSwipeRight(auth.currentUser.uid, user.userId);
 			const result = await checkForMatch(auth.currentUser.uid, user.userId);
-			result && Toast.show({text1: "Yaaay", text2: "You've got a match!"});
+			result && Toast.show({
+                text1: "Congrats!",
+                text2: "You've got a match!",
+                visibilityTime: 3000,
+                text2Style: toast.text1Style,
+                topOffset: toast.topOffset
+            });
 		}else{
+            console.log("swiped left",user.userId);
 			await onSwipeLeft(auth.currentUser.uid, user.userId);
 		}
     activeIndex.set(old=>old+1);
@@ -58,8 +66,8 @@ if(loading){
 return(
     <GestureHandlerRootView style={styles.cards}>
         <View style={styles.cards}>
-				<Toast/>
-        {currentIndex!=users.length?
+		<Toast/>
+        {currentIndex!=users.length+1?
             users.map((user,index) =>(
                 <BeatCard
                 key={index}
@@ -77,13 +85,6 @@ return(
                 </Text>
             </View>
         }
-        {/* <View>
-        <Button 
-            title="Yes" 
-            onPress={() => activeIndex.value = activeIndex.value + 1 }
-        />
-        </View> */}
-        
         </View>
     </GestureHandlerRootView>
 );

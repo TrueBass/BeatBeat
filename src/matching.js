@@ -37,11 +37,12 @@ export const onSwipeRight = async (currentUserId, targetUserId) => {
       console.error("Error handling swipe right: ", error);
     }
   };
+  
   export const onSwipeLeft = async (currentUserId, targetUserId) => {
     try {
       const swipeRef = ref(realtimeDB, `/swipes/${targetUserId}/${currentUserId}`);
       await update(swipeRef, {
-        swipeType: 'left',
+        swipeType: 'left'
       });
     } catch (error) {
       console.error("Error handling swipe right: ", error);

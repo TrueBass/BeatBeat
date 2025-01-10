@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // justifyContent: "space-between",
     backgroundColor: "#dfdfdfff",
-    borderColor: "red", borderWidth: 1
+    // borderColor: "red", borderWidth: 1
   },
   gallery:{
     width: "100%",
